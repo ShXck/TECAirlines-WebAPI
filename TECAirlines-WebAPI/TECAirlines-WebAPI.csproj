@@ -162,7 +162,13 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Classes\Customer.cs" />
+    <Compile Include="Classes\Flight.cs" />
+    <Compile Include="Classes\JSONHandler.cs" />
+    <Compile Include="Classes\Pair.cs" />
+    <Compile Include="Classes\Sale.cs" />
+    <Compile Include="Classes\SQLHandler.cs" />
     <Compile Include="Controllers\AirportController.cs" />
+    <Compile Include="Controllers\CustomerController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
