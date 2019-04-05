@@ -19,10 +19,24 @@ namespace TECAirlines_WebAPI.Classes
             return search_result.ToString();
         }
 
-        public static string BuildErrorJSON()
+        public static string BuildActiveFlightsResult(List<string> results)
+        {
+            JArray array = new JArray();
+            for(int i = 0; i < results.Count; i++)
+            {
+                array.Add(results.ElementAt(i));
+            }
+            JObject result = new JObject();
+            result["flights"] = array;
+
+            return result.ToString();
+        }
+
+        public static string BuildErrorJSON(string error_msg)
         {
             JObject search_result = new JObject();
             search_result["http_result"] = 0;
+            search_result["error_msg"] = error_msg;
             return search_result.ToString();
         }
 

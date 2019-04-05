@@ -161,12 +161,16 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Classes\Admin.cs" />
     <Compile Include="Classes\Customer.cs" />
+    <Compile Include="Classes\CustomerSQLHandler.cs" />
     <Compile Include="Classes\Flight.cs" />
+    <Compile Include="Classes\HTTPStatus.cs" />
     <Compile Include="Classes\JSONHandler.cs" />
     <Compile Include="Classes\Pair.cs" />
     <Compile Include="Classes\Sale.cs" />
-    <Compile Include="Classes\SQLHandler.cs" />
+    <Compile Include="Classes\AdminSQLHandler.cs" />
+    <Compile Include="Classes\SQLVerifier.cs" />
     <Compile Include="Controllers\AirportController.cs" />
     <Compile Include="Controllers\CustomerController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
