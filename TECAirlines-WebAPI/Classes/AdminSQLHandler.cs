@@ -8,13 +8,13 @@ namespace TECAirlines_WebAPI.Classes
 {
     public class AdminSQLHandler
     {
-        private static readonly string connect_str = "Data Source=.;Initial Catalog=TADatabase;Integrated Security=True";
+        private static readonly string connect_str = "Data Source=.;Initial Catalog=TecAirlinesDB;Integrated Security=True";
 
         public static int InsertNewCustomer(Customer customer)
         {
             int result = 2;
 
-            if (!SQLVerifier.UsernameExists(customer.username, "CUSTOMER", connect_str))
+            if (!SQLHelper.UsernameExists(customer.username, "CUSTOMER", connect_str))
             {
 
                 SqlConnection connection = new SqlConnection(connect_str);
@@ -27,15 +27,22 @@ namespace TECAirlines_WebAPI.Classes
                 cmd.Parameters.Add(new SqlParameter("phone_numbr", customer.phone_numbr));
                 cmd.Parameters.Add(new SqlParameter("email", customer.email));
                 cmd.Parameters.Add(new SqlParameter("is_student", customer.is_student));
-                cmd.Parameters.Add(new SqlParameter("college_name", customer.college_name));
-                cmd.Parameters.Add(new SqlParameter("student_id", customer.student_id));
                 cmd.Parameters.Add(new SqlParameter("username", customer.username));
                 cmd.Parameters.Add(new SqlParameter("password", customer.password));
-                cmd.Parameters.Add(new SqlParameter("st_miles", customer.st_miles));
-
+               
+                if(!customer.is_student)
+                {
+                    cmd.Parameters.Add(new SqlParameter("college_name", DBNull.Value));
+                    cmd.Parameters.Add(new SqlParameter("student_id", DBNull.Value));
+                    cmd.Parameters.Add(new SqlParameter("st_miles", DBNull.Value));
+                } else
+                {
+                    cmd.Parameters.Add(new SqlParameter("college_name", customer.college_name));
+                    cmd.Parameters.Add(new SqlParameter("student_id", customer.student_id));
+                    cmd.Parameters.Add(new SqlParameter("st_miles", customer.st_miles));
+                }
+      
                 result = cmd.ExecuteNonQuery();
-
-                System.Diagnostics.Debug.WriteLine(result);
 
                 connection.Close();
                 return result;
@@ -48,7 +55,7 @@ namespace TECAirlines_WebAPI.Classes
         {
             int result = 2;
 
-            if (!SQLVerifier.UsernameExists(admin.username, "ADMIN", connect_str))
+            if (!SQLHelper.UsernameExists(admin.username, "ADMIN", connect_str))
             {
                 SqlConnection connection = new SqlConnection(connect_str);
                 connection.Open();
@@ -79,12 +86,16 @@ namespace TECAirlines_WebAPI.Classes
             string req = "insert into FLIGHT VALUES (@depart_ap, @arrival_ap, @capacity, @flight_id, @depart_date, @plane_id, @status)";
             SqlCommand cmd = new SqlCommand(req, connection);
 
+            Tuple<int, int> plane_data = SQLHelper.GetPlaneDetails(flight.plane_model, connect_str);
+
+            System.Diagnostics.Debug.WriteLine(plane_data.ToString());
+
             cmd.Parameters.Add(new SqlParameter("depart_ap", flight.depart_ap));
             cmd.Parameters.Add(new SqlParameter("arrival_ap", flight.arrival_ap));
-            cmd.Parameters.Add(new SqlParameter("capacity", flight.capacity));
+            cmd.Parameters.Add(new SqlParameter("capacity", plane_data.Item2));
             cmd.Parameters.Add(new SqlParameter("flight_id", flight.flight_id));
             cmd.Parameters.Add(new SqlParameter("depart_date", flight.depart_date));
-            cmd.Parameters.Add(new SqlParameter("plane_id", flight.plane_id));
+            cmd.Parameters.Add(new SqlParameter("plane_id", plane_data.Item1));
             cmd.Parameters.Add(new SqlParameter("status", flight.status));
 
             int result = cmd.ExecuteNonQuery();
@@ -137,14 +148,69 @@ namespace TECAirlines_WebAPI.Classes
                         active_fl.Add(reader.GetString(0));
                     }
                     connection.Close();
-                    return JSONHandler.BuildActiveFlightsResult(active_fl);
+                    return JSONHandler.BuildListStrResult("flights", active_fl);
                 } else
                 {
                     connection.Close();
                     return JSONHandler.BuildErrorJSON("No active flights were found");
                 }
             }
+        }
 
+        public static string GetAirports()
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "select ap_name from AIRPORT";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            List<string> airports_lst = new List<string>();
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        airports_lst.Add(reader.GetString(0));
+                    }
+                    connection.Close();
+                    return JSONHandler.BuildListStrResult("airports", airports_lst);
+                }
+                else
+                {
+                    connection.Close();
+                    return JSONHandler.BuildErrorJSON("No airports were found");
+                }
+            }
+        }
+
+        public static string GetAirplanes()
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "select model from AIRPLANES";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            List<string> airplanes_lst = new List<string>();
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        airplanes_lst.Add(reader.GetString(0));
+                    }
+                    connection.Close();
+                    return JSONHandler.BuildListStrResult("airplanes", airplanes_lst);
+                }
+                else
+                {
+                    connection.Close();
+                    return JSONHandler.BuildErrorJSON("No airplanes were found");
+                }
+            }
         }
 
         public static int LoginAdmin(Admin admin)
@@ -171,6 +237,53 @@ namespace TECAirlines_WebAPI.Classes
                     return (int)HTTPStatus.UNAUTHORIZED;
                 }
             }
+        }
+
+        public static int InsertNewAirplane(Airplane ap)
+        {
+            int result = 2;
+
+            if (!SQLHelper.AirplaneExists(ap.model, connect_str))
+            {
+                SqlConnection connection = new SqlConnection(connect_str);
+                connection.Open();
+                string req = "insert into AIRPLANES VALUES (@model, @capacity, @plane_id)";
+                SqlCommand cmd = new SqlCommand(req, connection);
+
+                cmd.Parameters.Add(new SqlParameter("model", ap.model));
+                cmd.Parameters.Add(new SqlParameter("capacity", ap.capacity));
+                cmd.Parameters.Add(new SqlParameter("plane_id", ap.plane_id));
+
+                result = cmd.ExecuteNonQuery();
+
+                connection.Close();
+            }
+
+            return result;
+        }
+
+        public static int InsertNewAirport(Airport ap)
+        {
+            int result = 2;
+
+            if (!SQLHelper.AirportExists(ap.ap_name, connect_str))
+            {
+                SqlConnection connection = new SqlConnection(connect_str);
+                connection.Open();
+                string req = "insert into AIRPORT VALUES (@name, @short_name)";
+                SqlCommand cmd = new SqlCommand(req, connection);
+
+                cmd.Parameters.Add(new SqlParameter("name", ap.ap_name));
+                cmd.Parameters.Add(new SqlParameter("short_name", ap.ap_short_name));
+
+                result = cmd.ExecuteNonQuery();
+
+                connection.Close();
+
+                return result;
+            }
+
+            return result;
         }
     }
 }

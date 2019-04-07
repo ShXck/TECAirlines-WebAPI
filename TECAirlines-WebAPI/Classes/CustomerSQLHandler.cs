@@ -8,7 +8,7 @@ namespace TECAirlines_WebAPI.Classes
 {
     public class CustomerSQLHandler
     {
-        private static readonly string connect_str = "Data Source=.;Initial Catalog=TADatabase;Integrated Security=True";
+        private static readonly string connect_str = "Data Source=.;Initial Catalog=TecAirlinesDB;Integrated Security=True";
 
         public static string FindFlight(Flight flight)
         {
@@ -59,5 +59,7 @@ namespace TECAirlines_WebAPI.Classes
                 }
             }
         }
+
+        //public static int AddCreditCard(CCard card)
     }
 }

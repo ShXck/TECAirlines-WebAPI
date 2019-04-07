@@ -7,10 +7,9 @@ namespace TECAirlines_WebAPI.Classes
     {
         public string depart_ap;
         public string arrival_ap;
-        public string capacity;
         public string flight_id;
         public DateTime depart_date;
-        public string plane_id;
+        public string plane_model;
         public string status;
     }
 }

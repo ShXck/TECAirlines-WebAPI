@@ -48,6 +48,20 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(query_result);
         }
 
+        [HttpGet, Route("tecairlines/admin/airports")]
+        public IHttpActionResult GetAllAirports()
+        {
+            string query_result = AdminSQLHandler.GetAirports();
+            return Ok(query_result);
+        }
+
+        [HttpGet, Route("tecairlines/admin/airplanes")]
+        public IHttpActionResult GetAllAirplanes()
+        {
+            string query_result = AdminSQLHandler.GetAirplanes();
+            return Ok(query_result);
+        }
+
         [HttpPost, Route("tecairlines/admin/login")]
         public IHttpActionResult LoginAdmin([FromBody]string adm_credentials)
         {
@@ -59,6 +73,20 @@ namespace TECAirlines_WebAPI.Controllers
                 case 401: return Unauthorized();
             }
             return InternalServerError();
+        }
+
+        [HttpPost, Route("tecairlines/admin/new-airplane")]
+        public IHttpActionResult InsertAirplane([FromBody] string airp_details)
+        {
+            int query_result = AdminSQLHandler.InsertNewAirplane(JsonConvert.DeserializeObject<Airplane>(airp_details));
+            return CheckInsertionResult(query_result);
+        }
+
+        [HttpPost, Route("tecairlines/admin/new-airport")]
+        public IHttpActionResult InsertAirport([FromBody] string ap_details)
+        {
+            int query_result = AdminSQLHandler.InsertNewAirport(JsonConvert.DeserializeObject<Airport>(ap_details));
+            return CheckInsertionResult(query_result);
         }
 
         private IHttpActionResult CheckInsertionResult(int result)

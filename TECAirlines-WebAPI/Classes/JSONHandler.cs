@@ -19,7 +19,7 @@ namespace TECAirlines_WebAPI.Classes
             return search_result.ToString();
         }
 
-        public static string BuildActiveFlightsResult(List<string> results)
+        public static string BuildListStrResult(string attribute, List<string> results)
         {
             JArray array = new JArray();
             for(int i = 0; i < results.Count; i++)
@@ -27,7 +27,7 @@ namespace TECAirlines_WebAPI.Classes
                 array.Add(results.ElementAt(i));
             }
             JObject result = new JObject();
-            result["flights"] = array;
+            result[attribute] = array;
 
             return result.ToString();
         }

@@ -36,6 +36,11 @@ namespace TECAirlines_WebAPI.Controllers
             return CheckQueryResult(query_result, String.Empty);
         }
 
+        /*public IHttpActionResult AddPaymentMethod([FromBody] string card_details)
+        {
+
+        }*/
+
         private IHttpActionResult CheckQueryResult(int result, string message)
         {
             switch (result)
