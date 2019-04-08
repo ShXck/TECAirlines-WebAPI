@@ -165,6 +165,7 @@
     <Compile Include="Classes\Airplane.cs" />
     <Compile Include="Classes\Airport.cs" />
     <Compile Include="Classes\CCard.cs" />
+    <Compile Include="Classes\Cipher.cs" />
     <Compile Include="Classes\Customer.cs" />
     <Compile Include="Classes\CustomerSQLHandler.cs" />
     <Compile Include="Classes\Flight.cs" />

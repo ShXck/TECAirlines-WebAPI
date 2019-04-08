@@ -42,8 +42,10 @@ namespace TECAirlines_WebAPI.Classes
             string req = "select username, password from CUSTOMER where username = @user and password = @passw";
             SqlCommand cmd = new SqlCommand(req, connection);
 
+            string encr_pass = Cipher.Encrypt(cust.password);
+
             cmd.Parameters.Add(new SqlParameter("user", cust.username));
-            cmd.Parameters.Add(new SqlParameter("passw", cust.password));
+            cmd.Parameters.Add(new SqlParameter("passw", encr_pass));
 
             using (SqlDataReader reader = cmd.ExecuteReader())
             {
@@ -60,6 +62,30 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
-        //public static int AddCreditCard(CCard card)
+        public static int AddCreditCard(CCard card)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "insert into PAYMENT_METHOD VALUES (@username, @c_nmbr, @sec_code, @exp_date)";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            string encr_cnumbr = Cipher.Encrypt(card.card_numbr);
+            string encr_sec = Cipher.Encrypt(card.security_code);
+
+            System.Diagnostics.Debug.WriteLine(encr_cnumbr.Length);
+            System.Diagnostics.Debug.WriteLine(encr_sec.Length);
+
+            cmd.Parameters.Add(new SqlParameter("username", card.username));
+            cmd.Parameters.Add(new SqlParameter("c_nmbr", encr_cnumbr));
+            cmd.Parameters.Add(new SqlParameter("sec_code", encr_sec));
+            cmd.Parameters.Add(new SqlParameter("exp_date", card.exp_date));
+
+            int result = cmd.ExecuteNonQuery();
+
+            connection.Close();
+
+            return result;
+        }
     }
 }

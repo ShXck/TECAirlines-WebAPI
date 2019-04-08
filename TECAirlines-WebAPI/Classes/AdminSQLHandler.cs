@@ -23,12 +23,15 @@ namespace TECAirlines_WebAPI.Classes
                 string req = "insert into CUSTOMER VALUES (@full_name, @phone_numbr, @email, @is_student, @college_name, @student_id, @username, @password, @st_miles)";
                 SqlCommand cmd = new SqlCommand(req, connection);
 
+                string encr_pass = Cipher.Encrypt(customer.password);
+                string encr_phone = Cipher.Encrypt(customer.phone_numbr);
+
                 cmd.Parameters.Add(new SqlParameter("full_name", customer.full_name));
-                cmd.Parameters.Add(new SqlParameter("phone_numbr", customer.phone_numbr));
+                cmd.Parameters.Add(new SqlParameter("phone_numbr", encr_phone));
                 cmd.Parameters.Add(new SqlParameter("email", customer.email));
                 cmd.Parameters.Add(new SqlParameter("is_student", customer.is_student));
                 cmd.Parameters.Add(new SqlParameter("username", customer.username));
-                cmd.Parameters.Add(new SqlParameter("password", customer.password));
+                cmd.Parameters.Add(new SqlParameter("password", encr_pass));
                
                 if(!customer.is_student)
                 {
@@ -63,11 +66,14 @@ namespace TECAirlines_WebAPI.Classes
                 string req = "insert into ADMIN VALUES (@full_name, @phone_numbr, @email, @username, @password, @role)";
                 SqlCommand cmd = new SqlCommand(req, connection);
 
+                string encr_phone = Cipher.Encrypt(admin.phone_numbr);
+                string encr_pass = Cipher.Encrypt(admin.password);
+
                 cmd.Parameters.Add(new SqlParameter("full_name", admin.full_name));
-                cmd.Parameters.Add(new SqlParameter("phone_numbr", admin.phone_numbr));
+                cmd.Parameters.Add(new SqlParameter("phone_numbr", encr_phone));
                 cmd.Parameters.Add(new SqlParameter("email", admin.email));
                 cmd.Parameters.Add(new SqlParameter("username", admin.username));
-                cmd.Parameters.Add(new SqlParameter("password", admin.password));
+                cmd.Parameters.Add(new SqlParameter("password", encr_pass));
                 cmd.Parameters.Add(new SqlParameter("role", admin.role));
 
                 result = cmd.ExecuteNonQuery();
@@ -109,13 +115,13 @@ namespace TECAirlines_WebAPI.Classes
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
-            string req = "insert into SALE VALUES (@flight_id, @discount, @exp_date, @sale_id)";
+            string req = "insert into SALE VALUES (@flight_id, @discount, @exp_date, @start_date)";
             SqlCommand cmd = new SqlCommand(req, connection);
 
             cmd.Parameters.Add(new SqlParameter("flight_id", sale.flight_id));
             cmd.Parameters.Add(new SqlParameter("discount", sale.discount));
+            cmd.Parameters.Add(new SqlParameter("start_date", sale.start_date));
             cmd.Parameters.Add(new SqlParameter("exp_date", sale.exp_date));
-            cmd.Parameters.Add(new SqlParameter("sale_id", sale.sale_id));
 
             int result = cmd.ExecuteNonQuery();
 
@@ -217,11 +223,15 @@ namespace TECAirlines_WebAPI.Classes
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
-            string req = "select username, password from ADMIN where username = @user and password = @passw";
+            string req = "select username, password from ADMIN where username = @user and password = @password";
             SqlCommand cmd = new SqlCommand(req, connection);
 
+            string encr_pass = Cipher.Encrypt(admin.password);
+
+            System.Diagnostics.Debug.WriteLine(encr_pass);
+
             cmd.Parameters.Add(new SqlParameter("user", admin.username));
-            cmd.Parameters.Add(new SqlParameter("passw", admin.password));
+            cmd.Parameters.Add(new SqlParameter("password", encr_pass));
 
             using (SqlDataReader reader = cmd.ExecuteReader())
             {

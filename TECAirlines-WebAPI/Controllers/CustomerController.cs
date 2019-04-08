@@ -36,10 +36,13 @@ namespace TECAirlines_WebAPI.Controllers
             return CheckQueryResult(query_result, String.Empty);
         }
 
-        /*public IHttpActionResult AddPaymentMethod([FromBody] string card_details)
+        [HttpPost, Route("tecairlines/payment")]
+        public IHttpActionResult AddPaymentMethod([FromBody] string card_details)
         {
-
-        }*/
+            int query_result = CustomerSQLHandler.AddCreditCard(JsonConvert.DeserializeObject<CCard>(card_details));
+            if (query_result == 1) return Ok();
+            else return InternalServerError();
+        }
 
         private IHttpActionResult CheckQueryResult(int result, string message)
         {
