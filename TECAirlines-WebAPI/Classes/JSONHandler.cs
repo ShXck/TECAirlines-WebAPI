@@ -40,6 +40,14 @@ namespace TECAirlines_WebAPI.Classes
             return search_result.ToString();
         }
 
+        public static string BuildSuccessJSON(string msg)
+        {
+            JObject search_result = new JObject();
+            search_result["http_result"] = 1;
+            search_result["msg"] = msg;
+            return search_result.ToString();
+        }
+
         public static string FormatAsString(Object obj)
         {
             return String.Format("{0}", obj);

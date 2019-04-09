@@ -73,9 +73,6 @@ namespace TECAirlines_WebAPI.Classes
             string encr_cnumbr = Cipher.Encrypt(card.card_numbr);
             string encr_sec = Cipher.Encrypt(card.security_code);
 
-            System.Diagnostics.Debug.WriteLine(encr_cnumbr.Length);
-            System.Diagnostics.Debug.WriteLine(encr_sec.Length);
-
             cmd.Parameters.Add(new SqlParameter("username", card.username));
             cmd.Parameters.Add(new SqlParameter("c_nmbr", encr_cnumbr));
             cmd.Parameters.Add(new SqlParameter("sec_code", encr_sec));
@@ -87,5 +84,61 @@ namespace TECAirlines_WebAPI.Classes
 
             return result;
         }
+
+        public static int GetReservationCost(Reservation res)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "select normal_price, fc_price from FLIGHT where flight_id = @id";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("id", res.flight_id));
+
+            int cost = 0;
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    if (!res.is_first_class) cost += res.people_flying * reader.GetInt32(0);
+                    else cost += res.people_flying * reader.GetInt32(1);
+
+                    if (res.type.Equals("Ida y Vuelta")) cost *= 2;
+                }
+            }
+            connection.Close();
+            return cost;
+        }
+
+        public static string BookFlight(Reservation b_detail)
+        {
+            if (SQLHelper.CheckFlightState(b_detail.flight_id, connect_str).Equals("Active"))
+            {
+                SqlConnection connection = new SqlConnection(connect_str);
+                connection.Open();
+
+                string req = "insert into RESERVATION VALUES (@username, @flight_id, @type, @is_fc, @people)";
+                SqlCommand cmd = new SqlCommand(req, connection);
+
+                cmd.Parameters.Add(new SqlParameter("username", b_detail.username));
+                cmd.Parameters.Add(new SqlParameter("flight_id", b_detail.flight_id));
+                cmd.Parameters.Add(new SqlParameter("type", b_detail.type));
+                cmd.Parameters.Add(new SqlParameter("is_fc", b_detail.is_first_class));
+                cmd.Parameters.Add(new SqlParameter("people", b_detail.people_flying));
+
+                int result = cmd.ExecuteNonQuery();
+
+                connection.Close();
+
+                if (result == 1) return JSONHandler.BuildSuccessJSON("Flight is Active");
+                else return JSONHandler.BuildErrorJSON("Reservation could not be completed");
+            } else
+            {
+                return JSONHandler.BuildErrorJSON("The flight selected is no longer available for booking");
+            }
+        }
+
+  
     }
 }

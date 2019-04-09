@@ -111,5 +111,30 @@ namespace TECAirlines_WebAPI.Classes
             }
             return result;
         }
+
+        public static string CheckFlightState(string flight_id, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "select status FLIGHT where flight_id = @id";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("id", flight_id));
+
+            string status = "";
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    status = reader.GetString(0);
+                }
+            }
+
+            connection.Close();
+
+            return status;
+        }
     }
 }

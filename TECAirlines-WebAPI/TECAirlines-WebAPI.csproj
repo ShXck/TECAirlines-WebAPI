@@ -171,6 +171,7 @@
     <Compile Include="Classes\Flight.cs" />
     <Compile Include="Classes\HTTPStatus.cs" />
     <Compile Include="Classes\JSONHandler.cs" />
+    <Compile Include="Classes\Reservation.cs" />
     <Compile Include="Classes\Sale.cs" />
     <Compile Include="Classes\AdminSQLHandler.cs" />
     <Compile Include="Classes\SQLHelper.cs" />

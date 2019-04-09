@@ -19,10 +19,21 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(query_result);
         }
 
-        /*public IHttpActionResult BookFlight([FromBody] string fl_details)
+        // TODO: Test BookFlight, GetReservationCost
+        [HttpPost, Route("tecairlines/booking")]
+        public IHttpActionResult BookFlight([FromBody] string book_det)
         {
+            string query_result = CustomerSQLHandler.BookFlight(JsonConvert.DeserializeObject<Reservation>(book_det));
+            // TODO: Reduce available seats, for that add new column in FLIGHT table, with starting value of capacity equal of the whole plain capacity.
+            return Ok(query_result);
+        }
 
-        }*/ //TODO: Implement
+        [HttpGet, Route("tecairlines/cost")]
+        public IHttpActionResult GetReservationCost([FromBody] string reservation)
+        {
+            int cost = CustomerSQLHandler.GetReservationCost(JsonConvert.DeserializeObject<Reservation>(reservation));
+            return Ok(cost);
+        }
 
         public IHttpActionResult GetFlightDetails([FromBody] string details)
         {

@@ -11,5 +11,7 @@ namespace TECAirlines_WebAPI.Classes
         public DateTime depart_date;
         public string plane_model;
         public string status;
+        public int normal_price;
+        public int fc_price;
     }
 }
