@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
@@ -101,44 +102,158 @@ namespace TECAirlines_WebAPI.Classes
             {
                 if (reader.HasRows)
                 {
-                    if (!res.is_first_class) cost += res.people_flying * reader.GetInt32(0);
-                    else cost += res.people_flying * reader.GetInt32(1);
+                    while (reader.Read())
+                    {
+                        if (!res.is_first_class) cost += res.people_flying * reader.GetInt32(0);
+                        else cost += res.people_flying * reader.GetInt32(1);
 
-                    if (res.type.Equals("Ida y Vuelta")) cost *= 2;
+                        if (res.type.Equals("Ida y Vuelta")) cost *= 2;
+                    }
                 }
             }
             connection.Close();
             return cost;
         }
 
-        public static string BookFlight(Reservation b_detail)
+        public static string BookFlight(Reservation b_detail) 
         {
             if (SQLHelper.CheckFlightState(b_detail.flight_id, connect_str).Equals("Active"))
             {
-                SqlConnection connection = new SqlConnection(connect_str);
-                connection.Open();
+                if (b_detail.is_first_class)
+                {
+                    int fc_seats_left = SQLHelper.GetSeatsLeft("fc_seats_left", b_detail.flight_id, connect_str);
 
-                string req = "insert into RESERVATION VALUES (@username, @flight_id, @type, @is_fc, @people)";
-                SqlCommand cmd = new SqlCommand(req, connection);
+                    if (b_detail.people_flying < fc_seats_left)
+                    {
+                        return SetReservation(b_detail, fc_seats_left);
 
-                cmd.Parameters.Add(new SqlParameter("username", b_detail.username));
-                cmd.Parameters.Add(new SqlParameter("flight_id", b_detail.flight_id));
-                cmd.Parameters.Add(new SqlParameter("type", b_detail.type));
-                cmd.Parameters.Add(new SqlParameter("is_fc", b_detail.is_first_class));
-                cmd.Parameters.Add(new SqlParameter("people", b_detail.people_flying));
+                    }
+                    else if (fc_seats_left == 0)
+                    {
+                        return JSONHandler.BuildSuccessJSON("Your party's size exceeds the amount of seats available for this category.");
+                    }
+                    else
+                    {
+                        return JSONHandler.BuildErrorJSON("Something went wrong while placing your reservation. Try again later.");
+                    }
+                }
+                else
+                {
+                    int normal_seats_left = SQLHelper.GetSeatsLeft("seats_left", b_detail.flight_id, connect_str);
 
-                int result = cmd.ExecuteNonQuery();
+                    if (b_detail.people_flying < normal_seats_left)
+                    {
+                        return SetReservation(b_detail, normal_seats_left);
 
-                connection.Close();
-
-                if (result == 1) return JSONHandler.BuildSuccessJSON("Flight is Active");
-                else return JSONHandler.BuildErrorJSON("Reservation could not be completed");
+                    }
+                    else if (normal_seats_left == 0)
+                    {
+                        return JSONHandler.BuildSuccessJSON("Your party's size exceeds the amount of seats available for this category.");
+                    }
+                    else
+                    {
+                        return JSONHandler.BuildErrorJSON("Something went wrong while placing your reservation. Try again later.");
+                    }
+                }
             } else
             {
                 return JSONHandler.BuildErrorJSON("The flight selected is no longer available for booking");
             }
         }
 
-  
+        private static string SetReservation(Reservation res, int curr_seats)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "insert into RESERVATION VALUES (@username, @flight_id, @type, @is_fc, @people, @cost)";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("username", res.username));
+            cmd.Parameters.Add(new SqlParameter("flight_id", res.flight_id));
+            cmd.Parameters.Add(new SqlParameter("type", res.type));
+            cmd.Parameters.Add(new SqlParameter("is_fc", res.is_first_class));
+            cmd.Parameters.Add(new SqlParameter("people", res.people_flying));
+            cmd.Parameters.Add(new SqlParameter("cost", GetReservationCost(res)));
+
+            int result = cmd.ExecuteNonQuery();
+
+            connection.Close();
+
+            if (result == 1)
+            {
+                int amount = curr_seats - res.people_flying;
+                ReduceSeatsLeft(res.flight_id, res.type, amount);
+                connection.Close();
+                return JSONHandler.BuildSuccessJSON("Reservation was placed succesfully. Thank you.");
+            }
+            else
+            {
+                connection.Close();
+                return JSONHandler.BuildErrorJSON("Reservation could not be completed");
+            }
+        } 
+
+        //TODO: Test Reservation, ReduceSeatsLeft
+        private static void ReduceSeatsLeft(string flight_id, string type, int amount)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "update FLIGHT set " + type + " = @amount where flight_id = @flight";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("amount", amount));
+            cmd.Parameters.Add(new SqlParameter("flight", flight_id));
+
+            cmd.ExecuteNonQuery();
+
+            if (SQLHelper.IsFlightFull(flight_id, connect_str)) SetFullFlight(flight_id);
+        }
+
+        private static void SetFullFlight(string flight_id)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "update FLIGHT set status = @stat where flight_id = @flight";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("stat", "Full"));
+            cmd.Parameters.Add(new SqlParameter("flight", flight_id));
+
+            cmd.ExecuteNonQuery();
+        }
+        
+        public static string GetFlightDetails(string flight_id)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "select depart_ap, arrival_ap, normal_price, fc_price FROM FLIGHT where flight_id = @id";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("id", flight_id));
+
+            string message = "Error retrieving the selected flight";
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        message = JSONHandler.BuildFlightDetails(JSONHandler.FormatAsString(reader[0]),
+                                                              JSONHandler.FormatAsString(reader[2]),
+                                                              JSONHandler.FormatAsInt(reader[2]),
+                                                              JSONHandler.FormatAsInt(reader[3]));
+                    }
+
+                } else
+                {
+                    message = JSONHandler.BuildErrorJSON(message);
+                }
+            }
+            connection.Close();
+            return message;
+        }
     }
 }

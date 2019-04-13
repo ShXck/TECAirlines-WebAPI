@@ -85,17 +85,17 @@ namespace TECAirlines_WebAPI.Classes
             }
         } 
 
-        public static Tuple<int, int> GetPlaneDetails(string model, string connect_str)
+        public static Tuple<int, int, int> GetPlaneDetails(string model, string connect_str)
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
-            string req = "select plane_id, capacity from AIRPLANES where model = @model";
+            string req = "select plane_id, capacity, fc_capacity from AIRPLANES where model = @model";
 
             SqlCommand cmd = new SqlCommand(req, connection);
 
             cmd.Parameters.Add(new SqlParameter("model", model));
 
-            Tuple<int, int> result = null;
+            Tuple<int, int, int> result = null;
 
             using (SqlDataReader reader = cmd.ExecuteReader())
             {
@@ -103,7 +103,7 @@ namespace TECAirlines_WebAPI.Classes
                 {
                     while(reader.Read())
                     {
-                        result = new Tuple<int, int>(reader.GetInt32(0), reader.GetInt32(1));
+                        result = new Tuple<int, int, int>(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2));
                     }
                     connection.Close();
                     return result;
@@ -116,7 +116,7 @@ namespace TECAirlines_WebAPI.Classes
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
-            string req = "select status FLIGHT where flight_id = @id";
+            string req = "select status from FLIGHT where flight_id = @id";
 
             SqlCommand cmd = new SqlCommand(req, connection);
 
@@ -128,13 +128,69 @@ namespace TECAirlines_WebAPI.Classes
             {
                 if (reader.HasRows)
                 {
-                    status = reader.GetString(0);
+                    while (reader.Read())
+                    {
+                        status = reader.GetString(0);
+                    }
                 }
             }
 
             connection.Close();
 
             return status;
+        }
+
+        public static int GetSeatsLeft(string seat_type, string flight_id, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "select " + seat_type + " from FLIGHT where flight_id = @id";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("id", flight_id));
+
+            int result = -1;
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while(reader.Read())
+                    {
+                        result = Convert.ToInt32(reader[0]);
+                    }
+                }
+            }
+            connection.Close();
+            return result;
+        }
+
+        public static bool IsFlightFull(string flight_id, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "select seats_left, fc_seats_left from FLIGHT where flight_id = @id";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("id", flight_id));
+
+            bool result = false;
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        if ((int)reader[0] == 0 && (int)reader[1] == 0) result = true;
+                        else result = false;
+                    }
+                }
+            }
+            connection.Close();
+            return result;
         }
     }
 }

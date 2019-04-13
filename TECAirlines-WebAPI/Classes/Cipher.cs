@@ -112,7 +112,6 @@ namespace TECAirlines_WebAPI.Classes
                     decryptedBytes = ms.ToArray();
                 }
             }
-
             return decryptedBytes;
         }
     }

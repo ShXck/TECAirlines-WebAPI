@@ -16,7 +16,7 @@ namespace TECAirlines_WebAPI.Classes
 
             if (!SQLHelper.UsernameExists(customer.username, "CUSTOMER", connect_str))
             {
-
+                // TODO: separate it customers and students.
                 SqlConnection connection = new SqlConnection(connect_str);
                 connection.Open();
 
@@ -89,10 +89,10 @@ namespace TECAirlines_WebAPI.Classes
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
-            string req = "insert into FLIGHT VALUES (@depart_ap, @arrival_ap, @capacity, @flight_id, @depart_date, @plane_id, @status, @normal_price, @fc_price)";
+            string req = "insert into FLIGHT VALUES (@depart_ap, @arrival_ap, @capacity, @flight_id, @depart_date, @plane_id, @status, @normal_price, @fc_price, @seats_left, @fc_seats_left)";
             SqlCommand cmd = new SqlCommand(req, connection);
 
-            Tuple<int, int> plane_data = SQLHelper.GetPlaneDetails(flight.plane_model, connect_str);
+            Tuple<int, int, int> plane_data = SQLHelper.GetPlaneDetails(flight.plane_model, connect_str); // returns <plane_id, capacity, fc_capacity>
 
             System.Diagnostics.Debug.WriteLine(plane_data.ToString());
 
@@ -102,9 +102,11 @@ namespace TECAirlines_WebAPI.Classes
             cmd.Parameters.Add(new SqlParameter("flight_id", flight.flight_id));
             cmd.Parameters.Add(new SqlParameter("depart_date", flight.depart_date));
             cmd.Parameters.Add(new SqlParameter("plane_id", plane_data.Item1));
-            cmd.Parameters.Add(new SqlParameter("status", flight.status));
+            cmd.Parameters.Add(new SqlParameter("status", "Active"));
             cmd.Parameters.Add(new SqlParameter("normal_price", flight.normal_price));
             cmd.Parameters.Add(new SqlParameter("fc_price", flight.fc_price));
+            cmd.Parameters.Add(new SqlParameter("seats_left", plane_data.Item2));
+            cmd.Parameters.Add(new SqlParameter("fc_seats_left", plane_data.Item3));
 
             int result = cmd.ExecuteNonQuery();
 

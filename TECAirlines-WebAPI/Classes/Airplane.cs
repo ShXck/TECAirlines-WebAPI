@@ -10,5 +10,6 @@ namespace TECAirlines_WebAPI.Classes
         public string model;
         public int capacity;
         public string plane_id;
+        public int fc_capacity;
     }
 }

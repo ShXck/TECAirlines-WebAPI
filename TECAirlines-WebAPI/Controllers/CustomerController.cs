@@ -12,7 +12,7 @@ namespace TECAirlines_WebAPI.Controllers
     public class CustomerController : ApiController
     {
 
-        [HttpGet, Route("tecairlines/find-flights")]
+        [HttpGet, Route("tecairlines/flights")]
         public IHttpActionResult SearchFlight([FromBody]string search_params)
         {
             string query_result = CustomerSQLHandler.FindFlight(JsonConvert.DeserializeObject<Flight>(search_params));
@@ -24,7 +24,6 @@ namespace TECAirlines_WebAPI.Controllers
         public IHttpActionResult BookFlight([FromBody] string book_det)
         {
             string query_result = CustomerSQLHandler.BookFlight(JsonConvert.DeserializeObject<Reservation>(book_det));
-            // TODO: Reduce available seats, for that add new column in FLIGHT table, with starting value of capacity equal of the whole plain capacity.
             return Ok(query_result);
         }
 
@@ -35,9 +34,11 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(cost);
         }
 
-        public IHttpActionResult GetFlightDetails([FromBody] string details)
+        [HttpGet, Route("tecairlines/flights/{flight}")]
+        public IHttpActionResult GetFlightDetails([FromUri] string flight)
         {
-            return Ok(); // TODO: Join tables customer and flight_in, to display in the web page, all flights user has booked. Then, when selected, search for the flight details and display them on the screen.
+            string result = CustomerSQLHandler.GetFlightDetails(flight);
+            return Ok(result);
         }
 
         [HttpPost, Route("tecairlines/login")]

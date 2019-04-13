@@ -11,7 +11,7 @@ namespace TECAirlines_WebAPI.Classes
         public static string BuildFlightSearchResult(string status, string fl_id, string fl_date)
         {
             JObject search_result = new JObject();
-            search_result["query_result"] = 1;
+            search_result["http_result"] = 1;
             search_result["status"] = status;
             search_result["flight_id"] = fl_id;
             search_result["depart_date"] = fl_date;                
@@ -48,9 +48,25 @@ namespace TECAirlines_WebAPI.Classes
             return search_result.ToString();
         }
 
+        public static string BuildFlightDetails(string dep_ap, string arr_ap, int price, int fc_price)
+        {
+            JObject search_result = new JObject();
+            search_result["http_result"] = 1;
+            search_result["depart_ap"] = dep_ap;
+            search_result["arrival_ap"] = arr_ap;
+            search_result["normal_price"] = price;
+            search_result["fc_price"] = fc_price;
+            return search_result.ToString();
+        }
+
         public static string FormatAsString(Object obj)
         {
             return String.Format("{0}", obj);
+        }
+
+        public static int FormatAsInt(Object obj)
+        {
+            return Convert.ToInt32(obj);
         }
     }
 }
