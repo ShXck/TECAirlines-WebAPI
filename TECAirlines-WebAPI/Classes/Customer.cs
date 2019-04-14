@@ -8,7 +8,7 @@ namespace TECAirlines_WebAPI.Classes
         public string email;
         public bool is_student;
         public string college_name;
-        public string student_id;
+        public int student_id;
         public string username;
         public string password;
         public int st_miles;

@@ -115,7 +115,7 @@ namespace TECAirlines_WebAPI.Classes
             return cost;
         }
 
-        public static string BookFlight(Reservation b_detail) 
+        public static string BookFlight(Reservation b_detail)
         {
             if (SQLHelper.CheckFlightState(b_detail.flight_id, connect_str).Equals("Active"))
             {
@@ -183,7 +183,9 @@ namespace TECAirlines_WebAPI.Classes
             if (result == 1)
             {
                 int amount = curr_seats - res.people_flying;
-                ReduceSeatsLeft(res.flight_id, res.type, amount);
+
+                if (res.is_first_class) ReduceSeatsLeft(res.flight_id, "fc_seats_left", amount);
+                else ReduceSeatsLeft(res.flight_id, "seats_left", amount);
                 connection.Close();
                 return JSONHandler.BuildSuccessJSON("Reservation was placed succesfully. Thank you.");
             }
@@ -192,9 +194,8 @@ namespace TECAirlines_WebAPI.Classes
                 connection.Close();
                 return JSONHandler.BuildErrorJSON("Reservation could not be completed");
             }
-        } 
+        }
 
-        //TODO: Test Reservation, ReduceSeatsLeft
         private static void ReduceSeatsLeft(string flight_id, string type, int amount)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -222,6 +223,71 @@ namespace TECAirlines_WebAPI.Classes
 
             cmd.ExecuteNonQuery();
         }
+
+
+        public static string PayFlight(int method, string sec_code)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "select security_code from PAYMENT_METHOD where payment_id = @id";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("id", method));
+
+            string result = JSONHandler.BuildErrorJSON("Security code does not match. Try Again."); 
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while(reader.Read())
+                    {
+                        string og_code = reader.GetString(0);
+                        if(sec_code.Equals(og_code))
+                        {
+                            result = JSONHandler.BuildSuccessJSON("Card Authentication Succeded.");
+                        }
+                    }
+                }
+            }
+
+            connection.Close();
+
+            return result;
+        }
+
+        //TODO: Implement
+        /*public static string GetCards(string username)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "select card_numbr from PAYMENT_METHOD where username = @user";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("user", username));
+
+            List<string> cards_lst = new List<string>();
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        cards_lst.Add(reader.GetString(0));
+                    }
+                    connection.Close();
+                    return JSONHandler.BuildListStrResult("flights", cards_lst);
+                }
+                else
+                {
+                    connection.Close();
+                    return JSONHandler.BuildErrorJSON("No active flights were found");
+                }
+            }
+        }*/
         
         public static string GetFlightDetails(string flight_id)
         {

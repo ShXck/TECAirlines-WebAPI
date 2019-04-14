@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,6 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(query_result);
         }
 
-        // TODO: Test BookFlight, GetReservationCost
         [HttpPost, Route("tecairlines/booking")]
         public IHttpActionResult BookFlight([FromBody] string book_det)
         {
@@ -32,6 +32,21 @@ namespace TECAirlines_WebAPI.Controllers
         {
             int cost = CustomerSQLHandler.GetReservationCost(JsonConvert.DeserializeObject<Reservation>(reservation));
             return Ok(cost);
+        }
+
+        // TODO: Test flight payment
+        [HttpPost, Route("tecairlines/pay-flight")]
+        public IHttpActionResult PayFlight([FromBody] string paym_det)
+        {
+            JObject json = new JObject(paym_det);
+            string result = CustomerSQLHandler.PayFlight(Convert.ToInt32(json["method"]), json["sec_code"].ToString());
+            return Ok(result);
+        }
+
+        [HttpGet, Route("tecairlines/{username}/cards")]
+        public IHttpActionResult GetUserCards([FromUri] string username)
+        {
+
         }
 
         [HttpGet, Route("tecairlines/flights/{flight}")]

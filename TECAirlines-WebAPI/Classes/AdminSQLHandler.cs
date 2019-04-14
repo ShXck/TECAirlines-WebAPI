@@ -20,7 +20,7 @@ namespace TECAirlines_WebAPI.Classes
                 SqlConnection connection = new SqlConnection(connect_str);
                 connection.Open();
 
-                string req = "insert into CUSTOMER VALUES (@full_name, @phone_numbr, @email, @is_student, @college_name, @student_id, @username, @password, @st_miles)";
+                string req = "insert into CUSTOMER VALUES (@full_name, @phone_numbr, @email, @is_student, @username, @password)";
                 SqlCommand cmd = new SqlCommand(req, connection);
 
                 string encr_pass = Cipher.Encrypt(customer.password);
@@ -32,26 +32,35 @@ namespace TECAirlines_WebAPI.Classes
                 cmd.Parameters.Add(new SqlParameter("is_student", customer.is_student));
                 cmd.Parameters.Add(new SqlParameter("username", customer.username));
                 cmd.Parameters.Add(new SqlParameter("password", encr_pass));
-               
-                if(!customer.is_student)
-                {
-                    cmd.Parameters.Add(new SqlParameter("college_name", DBNull.Value));
-                    cmd.Parameters.Add(new SqlParameter("student_id", DBNull.Value));
-                    cmd.Parameters.Add(new SqlParameter("st_miles", DBNull.Value));
-                } else
-                {
-                    cmd.Parameters.Add(new SqlParameter("college_name", customer.college_name));
-                    cmd.Parameters.Add(new SqlParameter("student_id", customer.student_id));
-                    cmd.Parameters.Add(new SqlParameter("st_miles", customer.st_miles));
-                }
-      
+
                 result = cmd.ExecuteNonQuery();
+
+                if (customer.is_student)
+                {
+                    CreateNewStudent(customer.username, customer.college_name, customer.student_id);
+                } 
 
                 connection.Close();
                 return result;
             }
 
             return result; // 1 = success, 0 = insertion error, 2 = username already exists.
+        }
+
+        private static void CreateNewStudent(string username, string uni, int st_id)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "insert into STUDENTS VALUES (@id, @username, @uni, @miles)";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("id", st_id));
+            cmd.Parameters.Add(new SqlParameter("username", username));
+            cmd.Parameters.Add(new SqlParameter("uni", uni));
+            cmd.Parameters.Add(new SqlParameter("miles", 1));
+
+            cmd.ExecuteNonQuery();
         }
 
         public static int CreateNewAdmin(Admin admin)
