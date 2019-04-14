@@ -262,6 +262,37 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
+        public static string GetFlightReservations(string flight)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "select username, is_first_class from RESERVATION where flight_id = @flight";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("flight", flight));
+
+            List<string> res_lst = new List<string>();
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        res_lst.Add(JSONHandler.BuildPair("username", reader.GetString(0),
+                                                          "first_class", reader.GetBoolean(1).ToString()));
+                    }
+                    connection.Close();
+                    return JSONHandler.BuildListStrResult("reservations", res_lst);
+                }
+                else
+                {
+                    connection.Close();
+                    return JSONHandler.BuildErrorJSON("No reservations were found for this flight");
+                }
+            }
+        }
+
         public static int InsertNewAirplane(Airplane ap)
         {
             int result = 2;

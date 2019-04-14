@@ -71,7 +71,7 @@ namespace TECAirlines_WebAPI.Classes
             string req = "insert into PAYMENT_METHOD VALUES (@username, @c_nmbr, @sec_code, @exp_date)";
             SqlCommand cmd = new SqlCommand(req, connection);
 
-            string encr_cnumbr = Cipher.Encrypt(card.card_numbr);
+            string encr_cnumbr = Cipher.Encrypt(card.card_number);
             string encr_sec = Cipher.Encrypt(card.security_code);
 
             cmd.Parameters.Add(new SqlParameter("username", card.username));
@@ -225,15 +225,20 @@ namespace TECAirlines_WebAPI.Classes
         }
 
 
-        public static string PayFlight(int method, string sec_code)
+        public static string PayFlight(string card_number, string sec_code, string user)
         {
+            System.Diagnostics.Debug.WriteLine(Cipher.Encrypt(card_number));
+            System.Diagnostics.Debug.WriteLine(sec_code);
+            System.Diagnostics.Debug.WriteLine(user);
+
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
 
-            string req = "select security_code from PAYMENT_METHOD where payment_id = @id";
+            string req = "select security_code from PAYMENT_METHOD where card_number = @cnumbr and username = @user";
             SqlCommand cmd = new SqlCommand(req, connection);
 
-            cmd.Parameters.Add(new SqlParameter("id", method));
+            cmd.Parameters.Add(new SqlParameter("cnumbr", Cipher.Encrypt(card_number)));
+            cmd.Parameters.Add(new SqlParameter("user", user));
 
             string result = JSONHandler.BuildErrorJSON("Security code does not match. Try Again."); 
 
@@ -241,29 +246,30 @@ namespace TECAirlines_WebAPI.Classes
             {
                 if (reader.HasRows)
                 {
-                    while(reader.Read())
+                    while (reader.Read())
                     {
-                        string og_code = reader.GetString(0);
-                        if(sec_code.Equals(og_code))
+                        string og_code = Cipher.Decrypt(reader.GetString(0));
+                        if (sec_code.Equals(og_code))
                         {
                             result = JSONHandler.BuildSuccessJSON("Card Authentication Succeded.");
                         }
                     }
+                } else
+                {
+                    result = JSONHandler.BuildErrorJSON("There was a problem while retrieving your credit card information");
                 }
             }
-
             connection.Close();
 
             return result;
         }
 
-        //TODO: Implement
-        /*public static string GetCards(string username)
+        public static string GetCards(string username)
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
 
-            string req = "select card_numbr from PAYMENT_METHOD where username = @user";
+            string req = "select card_number from PAYMENT_METHOD where username = @user";
             SqlCommand cmd = new SqlCommand(req, connection);
 
             cmd.Parameters.Add(new SqlParameter("user", username));
@@ -276,18 +282,18 @@ namespace TECAirlines_WebAPI.Classes
                 {
                     while (reader.Read())
                     {
-                        cards_lst.Add(reader.GetString(0));
+                        cards_lst.Add(Cipher.Decrypt(reader.GetString(0)));
                     }
                     connection.Close();
-                    return JSONHandler.BuildListStrResult("flights", cards_lst);
+                    return JSONHandler.BuildListStrResult("cards", cards_lst);
                 }
                 else
                 {
                     connection.Close();
-                    return JSONHandler.BuildErrorJSON("No active flights were found");
+                    return JSONHandler.BuildErrorJSON("No cards were found.");
                 }
             }
-        }*/
+        }
         
         public static string GetFlightDetails(string flight_id)
         {

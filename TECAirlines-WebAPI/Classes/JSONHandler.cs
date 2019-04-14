@@ -59,6 +59,15 @@ namespace TECAirlines_WebAPI.Classes
             return search_result.ToString();
         }
 
+        public static string BuildPair(string key1, string val1, string key2, string val2)
+        {
+            JObject pair_json = new JObject();
+            pair_json[key1] = val1;
+            pair_json[key2] = val2;
+
+            return pair_json.ToString();
+        }
+
         public static string FormatAsString(Object obj)
         {
             return String.Format("{0}", obj);

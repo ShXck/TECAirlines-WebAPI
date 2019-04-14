@@ -35,18 +35,19 @@ namespace TECAirlines_WebAPI.Controllers
         }
 
         // TODO: Test flight payment
-        [HttpPost, Route("tecairlines/pay-flight")]
-        public IHttpActionResult PayFlight([FromBody] string paym_det)
+        [HttpPost, Route("tecairlines/{user}/pay-flight")]
+        public IHttpActionResult PayFlight([FromBody] string paym_det, [FromUri] string user)
         {
-            JObject json = new JObject(paym_det);
-            string result = CustomerSQLHandler.PayFlight(Convert.ToInt32(json["method"]), json["sec_code"].ToString());
+            CCard card = JsonConvert.DeserializeObject<CCard>(paym_det);
+            string result = CustomerSQLHandler.PayFlight(card.card_number, card.security_code, user);
             return Ok(result);
         }
 
         [HttpGet, Route("tecairlines/{username}/cards")]
         public IHttpActionResult GetUserCards([FromUri] string username)
         {
-
+            string cards_json = CustomerSQLHandler.GetCards(username);
+            return Ok(cards_json);
         }
 
         [HttpGet, Route("tecairlines/flights/{flight}")]

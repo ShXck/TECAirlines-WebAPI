@@ -75,6 +75,13 @@ namespace TECAirlines_WebAPI.Controllers
             return InternalServerError();
         }
 
+        [HttpGet, Route("tecairlines/admin/{flight}/reservations")]
+        public IHttpActionResult GetFlightReservation([FromUri] string flight)
+        {
+            string reservations = AdminSQLHandler.GetFlightReservations(flight);
+            return Ok(reservations);
+        }
+
         [HttpPost, Route("tecairlines/admin/new-airplane")]
         public IHttpActionResult InsertAirplane([FromBody] string airp_details)
         {
