@@ -34,7 +34,6 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(cost);
         }
 
-        // TODO: Test flight payment
         [HttpPost, Route("tecairlines/{user}/pay-flight")]
         public IHttpActionResult PayFlight([FromBody] string paym_det, [FromUri] string user)
         {
@@ -57,8 +56,15 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet, Route("tecairlines/{user}/flights")]
+        public IHttpActionResult GetUserFlights([FromUri] string user)
+        {
+            string result = CustomerSQLHandler.GetUserFlights(user);
+            return Ok(result);
+        }
+
         [HttpPost, Route("tecairlines/login")]
-        public IHttpActionResult CustomerLogin([FromBody]string usr_credentials)
+        public IHttpActionResult CustomerLogin([FromBody] string usr_credentials)
         {
             int query_result = CustomerSQLHandler.LoginCustomer(JsonConvert.DeserializeObject<Customer>(usr_credentials));
             return CheckQueryResult(query_result, String.Empty);

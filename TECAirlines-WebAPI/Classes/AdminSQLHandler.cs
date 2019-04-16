@@ -128,12 +128,12 @@ namespace TECAirlines_WebAPI.Classes
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
-            string req = "insert into SALE VALUES (@flight_id, @discount, @exp_date, @start_date)";
+            string req = "insert into SALE VALUES (@flight_id, @discount, @start_date, @exp_date)";
             SqlCommand cmd = new SqlCommand(req, connection);
 
             cmd.Parameters.Add(new SqlParameter("flight_id", sale.flight_id));
             cmd.Parameters.Add(new SqlParameter("discount", sale.discount));
-            cmd.Parameters.Add(new SqlParameter("start_date", sale.start_date));
+            cmd.Parameters.Add(new SqlParameter("start_date", DateTime.Today));
             cmd.Parameters.Add(new SqlParameter("exp_date", sale.exp_date));
 
             int result = cmd.ExecuteNonQuery();
@@ -291,6 +291,23 @@ namespace TECAirlines_WebAPI.Classes
                     return JSONHandler.BuildErrorJSON("No reservations were found for this flight");
                 }
             }
+        }
+
+        public static int CloseFlight(string flight)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "update FLIGHT set status = @stat where flight_id = @flight";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("stat", "Closed"));
+            cmd.Parameters.Add(new SqlParameter("flight", flight));
+
+            int result = cmd.ExecuteNonQuery();
+
+            connection.Close();
+
+            return result;
         }
 
         public static int InsertNewAirplane(Airplane ap)

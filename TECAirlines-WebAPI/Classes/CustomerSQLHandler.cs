@@ -96,7 +96,8 @@ namespace TECAirlines_WebAPI.Classes
 
             cmd.Parameters.Add(new SqlParameter("id", res.flight_id));
 
-            int cost = 0;
+            double cost = 0;
+            double discount = SQLHelper.CheckFlightDiscount(res.flight_id, connect_str) / 100;
 
             using (SqlDataReader reader = cmd.ExecuteReader())
             {
@@ -111,8 +112,9 @@ namespace TECAirlines_WebAPI.Classes
                     }
                 }
             }
+            cost -= cost * discount;
             connection.Close();
-            return cost;
+            return (int)cost;
         }
 
         public static string BookFlight(Reservation b_detail)
@@ -123,7 +125,7 @@ namespace TECAirlines_WebAPI.Classes
                 {
                     int fc_seats_left = SQLHelper.GetSeatsLeft("fc_seats_left", b_detail.flight_id, connect_str);
 
-                    if (b_detail.people_flying < fc_seats_left)
+                    if (b_detail.people_flying <= fc_seats_left)
                     {
                         return SetReservation(b_detail, fc_seats_left);
 
@@ -141,7 +143,7 @@ namespace TECAirlines_WebAPI.Classes
                 {
                     int normal_seats_left = SQLHelper.GetSeatsLeft("seats_left", b_detail.flight_id, connect_str);
 
-                    if (b_detail.people_flying < normal_seats_left)
+                    if (b_detail.people_flying <= normal_seats_left)
                     {
                         return SetReservation(b_detail, normal_seats_left);
 
@@ -227,10 +229,6 @@ namespace TECAirlines_WebAPI.Classes
 
         public static string PayFlight(string card_number, string sec_code, string user)
         {
-            System.Diagnostics.Debug.WriteLine(Cipher.Encrypt(card_number));
-            System.Diagnostics.Debug.WriteLine(sec_code);
-            System.Diagnostics.Debug.WriteLine(user);
-
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
 
@@ -262,6 +260,37 @@ namespace TECAirlines_WebAPI.Classes
             connection.Close();
 
             return result;
+        }
+
+        public static string GetUserFlights(string user)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "select flight_id from RESERVATION where username = @user";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("user", user));
+
+            List<string> user_res = new List<string>();
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        user_res.Add(reader.GetString(0));
+                    }
+                    connection.Close();
+                    return JSONHandler.BuildListStrResult("flights", user_res);
+                }
+                else
+                {
+                    connection.Close();
+                    return JSONHandler.BuildErrorJSON("No flights were found.");
+                }
+            }
         }
 
         public static string GetCards(string username)

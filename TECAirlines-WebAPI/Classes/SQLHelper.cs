@@ -192,5 +192,37 @@ namespace TECAirlines_WebAPI.Classes
             connection.Close();
             return result;
         }
+
+        public static float CheckFlightDiscount(string flight, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "select exp_date, discount from SALE where flight_id = @id";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("id", flight));
+
+            DateTime today = DateTime.Today;
+
+            int result = 0;
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        DateTime sale_exp = reader.GetDateTime(0);
+                        if (today <= sale_exp)
+                        {
+                            result = reader.GetInt32(1);
+                        }
+                    }
+                }
+            }
+            connection.Close();
+            return result;
+        }
     }
 }

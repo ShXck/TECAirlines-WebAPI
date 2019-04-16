@@ -82,6 +82,14 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(reservations);
         }
 
+        [HttpPut, Route("tecairlines/admin/close/{flight}")]
+        public IHttpActionResult CloseFlight([FromUri] string flight)
+        {
+            int result = AdminSQLHandler.CloseFlight(flight);
+            if (result == 1) return Ok();
+            else return InternalServerError();
+        }
+
         [HttpPost, Route("tecairlines/admin/new-airplane")]
         public IHttpActionResult InsertAirplane([FromBody] string airp_details)
         {
