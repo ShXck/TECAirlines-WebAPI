@@ -28,7 +28,7 @@ namespace TECAirlines_WebAPI.Classes
                 if (reader.Read()) result_str = JSONHandler.BuildFlightSearchResult(JSONHandler.FormatAsString(reader["status"]),
                                                                                     JSONHandler.FormatAsString(reader["flight_id"]),
                                                                                     JSONHandler.FormatAsString(reader["depart_date"]));
-                else result_str = JSONHandler.BuildErrorJSON("Flight Not Found");
+                else result_str = JSONHandler.BuildMsgJSON(0, "Flight Not Found");
             }
 
             connection.Close();
@@ -86,7 +86,7 @@ namespace TECAirlines_WebAPI.Classes
             return result;
         }
 
-        public static int GetReservationCost(Reservation res)
+        public static string GetReservationCost(Reservation res)
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
@@ -114,7 +114,7 @@ namespace TECAirlines_WebAPI.Classes
             }
             cost -= cost * discount;
             connection.Close();
-            return (int)cost;
+            return JSONHandler.BuildCost((int)cost);
         }
 
         public static string BookFlight(Reservation b_detail)
@@ -132,11 +132,11 @@ namespace TECAirlines_WebAPI.Classes
                     }
                     else if (fc_seats_left == 0)
                     {
-                        return JSONHandler.BuildSuccessJSON("Your party's size exceeds the amount of seats available for this category.");
+                        return JSONHandler.BuildMsgJSON(0, "Your party's size exceeds the amount of seats available for this category.");
                     }
                     else
                     {
-                        return JSONHandler.BuildErrorJSON("Something went wrong while placing your reservation. Try again later.");
+                        return JSONHandler.BuildMsgJSON(0, "Something went wrong while placing your reservation. Try again later.");
                     }
                 }
                 else
@@ -150,16 +150,16 @@ namespace TECAirlines_WebAPI.Classes
                     }
                     else if (normal_seats_left == 0)
                     {
-                        return JSONHandler.BuildSuccessJSON("Your party's size exceeds the amount of seats available for this category.");
+                        return JSONHandler.BuildMsgJSON(0, "Your party's size exceeds the amount of seats available for this category.");
                     }
                     else
                     {
-                        return JSONHandler.BuildErrorJSON("Something went wrong while placing your reservation. Try again later.");
+                        return JSONHandler.BuildMsgJSON(0, "Something went wrong while placing your reservation. Try again later.");
                     }
                 }
             } else
             {
-                return JSONHandler.BuildErrorJSON("The flight selected is no longer available for booking");
+                return JSONHandler.BuildMsgJSON(0, "The flight selected is no longer available for booking");
             }
         }
 
@@ -189,12 +189,12 @@ namespace TECAirlines_WebAPI.Classes
                 if (res.is_first_class) ReduceSeatsLeft(res.flight_id, "fc_seats_left", amount);
                 else ReduceSeatsLeft(res.flight_id, "seats_left", amount);
                 connection.Close();
-                return JSONHandler.BuildSuccessJSON("Reservation was placed succesfully. Thank you.");
+                return JSONHandler.BuildMsgJSON(1, "Reservation was placed succesfully. Thank you.");
             }
             else
             {
                 connection.Close();
-                return JSONHandler.BuildErrorJSON("Reservation could not be completed");
+                return JSONHandler.BuildMsgJSON(0, "Reservation could not be completed");
             }
         }
 
@@ -238,7 +238,7 @@ namespace TECAirlines_WebAPI.Classes
             cmd.Parameters.Add(new SqlParameter("cnumbr", Cipher.Encrypt(card_number)));
             cmd.Parameters.Add(new SqlParameter("user", user));
 
-            string result = JSONHandler.BuildErrorJSON("Security code does not match. Try Again."); 
+            string result = JSONHandler.BuildMsgJSON(0, "Security code does not match. Try Again."); 
 
             using (SqlDataReader reader = cmd.ExecuteReader())
             {
@@ -249,12 +249,12 @@ namespace TECAirlines_WebAPI.Classes
                         string og_code = Cipher.Decrypt(reader.GetString(0));
                         if (sec_code.Equals(og_code))
                         {
-                            result = JSONHandler.BuildSuccessJSON("Card Authentication Succeded.");
+                            result = JSONHandler.BuildMsgJSON(1, "Card Authentication Succeded.");
                         }
                     }
                 } else
                 {
-                    result = JSONHandler.BuildErrorJSON("There was a problem while retrieving your credit card information");
+                    result = JSONHandler.BuildMsgJSON(0, "There was a problem while retrieving your credit card information. Try again later.");
                 }
             }
             connection.Close();
@@ -288,7 +288,7 @@ namespace TECAirlines_WebAPI.Classes
                 else
                 {
                     connection.Close();
-                    return JSONHandler.BuildErrorJSON("No flights were found.");
+                    return JSONHandler.BuildMsgJSON(0, "No flights were found.");
                 }
             }
         }
@@ -319,7 +319,7 @@ namespace TECAirlines_WebAPI.Classes
                 else
                 {
                     connection.Close();
-                    return JSONHandler.BuildErrorJSON("No cards were found.");
+                    return JSONHandler.BuildMsgJSON(0, "No cards were found.");
                 }
             }
         }
@@ -350,7 +350,7 @@ namespace TECAirlines_WebAPI.Classes
 
                 } else
                 {
-                    message = JSONHandler.BuildErrorJSON(message);
+                    message = JSONHandler.BuildMsgJSON(0, message);
                 }
             }
             connection.Close();

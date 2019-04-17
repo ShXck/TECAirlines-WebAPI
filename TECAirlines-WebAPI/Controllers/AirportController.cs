@@ -22,6 +22,8 @@ namespace TECAirlines_WebAPI.Controllers
         [HttpPost, Route("tecairlines/admin/signup")]
         public IHttpActionResult CreateAdmin([FromBody]string admin_data)
         {
+            System.Diagnostics.Debug.WriteLine(admin_data);
+
             int query_result = AdminSQLHandler.CreateNewAdmin(JsonConvert.DeserializeObject<Admin>(admin_data));
             return CheckInsertionResult(query_result);
         }
@@ -65,6 +67,9 @@ namespace TECAirlines_WebAPI.Controllers
         [HttpPost, Route("tecairlines/admin/login")]
         public IHttpActionResult LoginAdmin([FromBody]string adm_credentials)
         {
+
+
+            System.Diagnostics.Debug.WriteLine(adm_credentials);
             int query_result = AdminSQLHandler.LoginAdmin(JsonConvert.DeserializeObject<Admin>(adm_credentials));
 
             switch (query_result)
@@ -108,11 +113,11 @@ namespace TECAirlines_WebAPI.Controllers
         {
             switch(result)
             {
-                case 1: return Ok();
-                case 0: return InternalServerError();
-                case 2: return Conflict();
+                case 1: return Ok(JSONHandler.BuildMsgJSON(1, "Task successfully executed"));
+                case 0: return Ok(JSONHandler.BuildMsgJSON(0, "Task could not be completed"));
+                case 2: return Ok(JSONHandler.BuildMsgJSON(0, "Username already exists"));
             }
-            return InternalServerError();
+            return Ok(JSONHandler.BuildMsgJSON(0, "There was an internal error. Try again later"));
         }
     }
 }

@@ -30,7 +30,7 @@ namespace TECAirlines_WebAPI.Controllers
         [HttpGet, Route("tecairlines/cost")]
         public IHttpActionResult GetReservationCost([FromBody] string reservation)
         {
-            int cost = CustomerSQLHandler.GetReservationCost(JsonConvert.DeserializeObject<Reservation>(reservation));
+            string cost = CustomerSQLHandler.GetReservationCost(JsonConvert.DeserializeObject<Reservation>(reservation));
             return Ok(cost);
         }
 
@@ -75,7 +75,7 @@ namespace TECAirlines_WebAPI.Controllers
         {
             int query_result = CustomerSQLHandler.AddCreditCard(JsonConvert.DeserializeObject<CCard>(card_details));
             if (query_result == 1) return Ok();
-            else return InternalServerError();
+            else return CheckQueryResult(500, String.Empty);
         }
 
         private IHttpActionResult CheckQueryResult(int result, string message)
@@ -83,11 +83,11 @@ namespace TECAirlines_WebAPI.Controllers
             switch (result)
             {
                 case 200: return Ok(message);
-                case 500: return InternalServerError();
-                case 401: return Unauthorized();
-                case 404: return NotFound();
+                case 500: return Ok(JSONHandler.BuildMsgJSON(0, "There was an internal error"));
+                case 401: return Ok(JSONHandler.BuildMsgJSON(0, "Your username or password is incorrect"));
+                case 404: return Ok(JSONHandler.BuildMsgJSON(0, "The resource was not found"));
             }
-            return InternalServerError();
+            return Ok(JSONHandler.BuildMsgJSON(0, "There was an internal error"));
         }
     }
 }

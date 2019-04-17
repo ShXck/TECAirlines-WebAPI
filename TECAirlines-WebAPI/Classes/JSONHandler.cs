@@ -28,22 +28,15 @@ namespace TECAirlines_WebAPI.Classes
             }
             JObject result = new JObject();
             result[attribute] = array;
+            result["http_result"] = 1;
 
             return result.ToString();
         }
 
-        public static string BuildErrorJSON(string error_msg)
+        public static string BuildMsgJSON(int result, string msg)
         {
             JObject search_result = new JObject();
-            search_result["http_result"] = 0;
-            search_result["error_msg"] = error_msg;
-            return search_result.ToString();
-        }
-
-        public static string BuildSuccessJSON(string msg)
-        {
-            JObject search_result = new JObject();
-            search_result["http_result"] = 1;
+            search_result["http_result"] = result;
             search_result["msg"] = msg;
             return search_result.ToString();
         }
@@ -64,8 +57,17 @@ namespace TECAirlines_WebAPI.Classes
             JObject pair_json = new JObject();
             pair_json[key1] = val1;
             pair_json[key2] = val2;
+            pair_json["http_result"] = 1;
 
             return pair_json.ToString();
+        }
+
+        public static string BuildCost(int cost)
+        {
+            JObject cost_json = new JObject();
+            cost_json["cost"] = cost;
+            cost_json["http_result"] = 1;
+            return cost_json.ToString();
         }
 
         public static string FormatAsString(Object obj)

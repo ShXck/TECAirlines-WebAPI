@@ -171,7 +171,7 @@ namespace TECAirlines_WebAPI.Classes
                 } else
                 {
                     connection.Close();
-                    return JSONHandler.BuildErrorJSON("No active flights were found");
+                    return JSONHandler.BuildMsgJSON(0, "No active flights were found");
                 }
             }
         }
@@ -199,7 +199,7 @@ namespace TECAirlines_WebAPI.Classes
                 else
                 {
                     connection.Close();
-                    return JSONHandler.BuildErrorJSON("No airports were found");
+                    return JSONHandler.BuildMsgJSON(0, "No airports were found");
                 }
             }
         }
@@ -227,7 +227,7 @@ namespace TECAirlines_WebAPI.Classes
                 else
                 {
                     connection.Close();
-                    return JSONHandler.BuildErrorJSON("No airplanes were found");
+                    return JSONHandler.BuildMsgJSON(0, "No airplanes were found");
                 }
             }
         }
@@ -288,7 +288,7 @@ namespace TECAirlines_WebAPI.Classes
                 else
                 {
                     connection.Close();
-                    return JSONHandler.BuildErrorJSON("No reservations were found for this flight");
+                    return JSONHandler.BuildMsgJSON(0, "No reservations were found for this flight");
                 }
             }
         }
