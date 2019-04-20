@@ -67,14 +67,14 @@ namespace TECAirlines_WebAPI.Controllers
         public IHttpActionResult CustomerLogin([FromBody] string usr_credentials)
         {
             int query_result = CustomerSQLHandler.LoginCustomer(JsonConvert.DeserializeObject<Customer>(usr_credentials));
-            return CheckQueryResult(query_result, String.Empty);
+            return CheckQueryResult(query_result, JSONHandler.BuildMsgJSON(1, "Login successful"));
         }
 
         [HttpPost, Route("tecairlines/payment")]
         public IHttpActionResult AddPaymentMethod([FromBody] string card_details)
         {
             int query_result = CustomerSQLHandler.AddCreditCard(JsonConvert.DeserializeObject<CCard>(card_details));
-            if (query_result == 1) return Ok();
+            if (query_result == 1) return Ok(JSONHandler.BuildMsgJSON(1, "Success"));
             else return CheckQueryResult(500, String.Empty);
         }
 

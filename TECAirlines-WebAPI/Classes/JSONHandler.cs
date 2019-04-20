@@ -8,14 +8,14 @@ namespace TECAirlines_WebAPI.Classes
 {
     public class JSONHandler
     {
-        public static string BuildFlightSearchResult(string status, string fl_id, string fl_date)
+        public static string BuildFlightSearchResult(string status, string fl_id, string fl_date, int price)
         {
             JObject search_result = new JObject();
-            search_result["http_result"] = 1;
             search_result["status"] = status;
             search_result["flight_id"] = fl_id;
-            search_result["depart_date"] = fl_date;                
-
+            search_result["depart_date"] = fl_date;
+            search_result["price"] = price;
+            search_result["http_result"] = 1;
             return search_result.ToString();
         }
 
@@ -27,8 +27,8 @@ namespace TECAirlines_WebAPI.Classes
                 array.Add(results.ElementAt(i));
             }
             JObject result = new JObject();
-            result[attribute] = array;
             result["http_result"] = 1;
+            result[attribute] = array;
 
             return result.ToString();
         }
@@ -36,19 +36,19 @@ namespace TECAirlines_WebAPI.Classes
         public static string BuildMsgJSON(int result, string msg)
         {
             JObject search_result = new JObject();
-            search_result["http_result"] = result;
             search_result["msg"] = msg;
+            search_result["http_result"] = result;
             return search_result.ToString();
         }
 
         public static string BuildFlightDetails(string dep_ap, string arr_ap, int price, int fc_price)
         {
             JObject search_result = new JObject();
-            search_result["http_result"] = 1;
             search_result["depart_ap"] = dep_ap;
             search_result["arrival_ap"] = arr_ap;
             search_result["normal_price"] = price;
             search_result["fc_price"] = fc_price;
+            search_result["http_result"] = 1;
             return search_result.ToString();
         }
 

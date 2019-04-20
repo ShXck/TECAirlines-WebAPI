@@ -15,7 +15,7 @@ namespace TECAirlines_WebAPI.Classes
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
-            string req = "select status, flight_id, depart_date from FLIGHT where depart_ap = @depart and arrival_ap = @arrival";
+            string req = "select status, flight_id, depart_date, normal_price from FLIGHT where depart_ap = @depart and arrival_ap = @arrival";
             SqlCommand cmd = new SqlCommand(req, connection);
 
             cmd.Parameters.Add(new SqlParameter("depart", flight.depart_ap));
@@ -27,7 +27,8 @@ namespace TECAirlines_WebAPI.Classes
             {
                 if (reader.Read()) result_str = JSONHandler.BuildFlightSearchResult(JSONHandler.FormatAsString(reader["status"]),
                                                                                     JSONHandler.FormatAsString(reader["flight_id"]),
-                                                                                    JSONHandler.FormatAsString(reader["depart_date"]));
+                                                                                    JSONHandler.FormatAsString(reader["depart_date"]),
+                                                                                    JSONHandler.FormatAsInt(reader["normal_price"]));
                 else result_str = JSONHandler.BuildMsgJSON(0, "Flight Not Found");
             }
 

@@ -61,23 +61,22 @@ namespace TECAirlines_WebAPI.Controllers
         public IHttpActionResult GetAllAirplanes()
         {
             string query_result = AdminSQLHandler.GetAirplanes();
+            System.Diagnostics.Debug.WriteLine(query_result);
             return Ok(query_result);
         }
 
         [HttpPost, Route("tecairlines/admin/login")]
         public IHttpActionResult LoginAdmin([FromBody]string adm_credentials)
         {
-
-
             System.Diagnostics.Debug.WriteLine(adm_credentials);
             int query_result = AdminSQLHandler.LoginAdmin(JsonConvert.DeserializeObject<Admin>(adm_credentials));
 
             switch (query_result)
             {
-                case 200: return Ok();
-                case 401: return Unauthorized();
+                case 200: return Ok(JSONHandler.BuildMsgJSON(1, "Login Successful"));
+                case 401: return Ok(JSONHandler.BuildMsgJSON(0, "Login Failed"));
             }
-            return InternalServerError();
+            return Ok(JSONHandler.BuildMsgJSON(0, "There was an internal error"));
         }
 
         [HttpGet, Route("tecairlines/admin/{flight}/reservations")]
