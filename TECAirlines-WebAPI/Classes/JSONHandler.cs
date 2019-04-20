@@ -8,14 +8,13 @@ namespace TECAirlines_WebAPI.Classes
 {
     public class JSONHandler
     {
-        public static string BuildFlightSearchResult(string status, string fl_id, string fl_date, int price)
+        public static string BuildFlightSearchResult(string fl_id, string fl_date, int price, int fc_price)
         {
             JObject search_result = new JObject();
-            search_result["status"] = status;
             search_result["flight_id"] = fl_id;
             search_result["depart_date"] = fl_date;
             search_result["price"] = price;
-            search_result["http_result"] = 1;
+            search_result["fc_price"] = fc_price;
             return search_result.ToString();
         }
 

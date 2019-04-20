@@ -15,26 +15,35 @@ namespace TECAirlines_WebAPI.Classes
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
-            string req = "select status, flight_id, depart_date, normal_price from FLIGHT where depart_ap = @depart and arrival_ap = @arrival";
+            string req = "select flight_id, depart_date, normal_price, fc_price from FLIGHT where depart_ap = @depart and arrival_ap = @arrival and status = @stat";
             SqlCommand cmd = new SqlCommand(req, connection);
 
             cmd.Parameters.Add(new SqlParameter("depart", flight.depart_ap));
             cmd.Parameters.Add(new SqlParameter("arrival", flight.arrival_ap));
+            cmd.Parameters.Add(new SqlParameter("stat", "Active"));
 
-            string result_str = "";
+            List<string> flight_lst = new List<string>();
 
             using (SqlDataReader reader = cmd.ExecuteReader())
             {
-                if (reader.Read()) result_str = JSONHandler.BuildFlightSearchResult(JSONHandler.FormatAsString(reader["status"]),
-                                                                                    JSONHandler.FormatAsString(reader["flight_id"]),
-                                                                                    JSONHandler.FormatAsString(reader["depart_date"]),
-                                                                                    JSONHandler.FormatAsInt(reader["normal_price"]));
-                else result_str = JSONHandler.BuildMsgJSON(0, "Flight Not Found");
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        flight_lst.Add(JSONHandler.BuildFlightSearchResult(reader.GetString(0),
+                                                                           reader.GetDateTime(1).ToString(),
+                                                                           reader.GetInt32(2),
+                                                                           reader.GetInt32(3)));
+                    }
+                    connection.Close();
+                    return JSONHandler.BuildListStrResult("flights", flight_lst);
+                }
+                else
+                {
+                    connection.Close();
+                    return JSONHandler.BuildMsgJSON(0, "No flights were found.");
+                }
             }
-
-            connection.Close();
-
-            return result_str;
         }
 
         public static int LoginCustomer(Customer cust)

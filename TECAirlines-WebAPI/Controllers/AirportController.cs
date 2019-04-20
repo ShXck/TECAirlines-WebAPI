@@ -90,8 +90,8 @@ namespace TECAirlines_WebAPI.Controllers
         public IHttpActionResult CloseFlight([FromUri] string flight)
         {
             int result = AdminSQLHandler.CloseFlight(flight);
-            if (result == 1) return Ok();
-            else return InternalServerError();
+            if (result == 1) return Ok(JSONHandler.BuildMsgJSON(1, "Flight Closed Successfully"));
+            else return Ok(JSONHandler.BuildMsgJSON(0, "Task Failed"));
         }
 
         [HttpPost, Route("tecairlines/admin/new-airplane")]
