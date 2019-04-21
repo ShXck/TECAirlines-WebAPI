@@ -333,6 +333,35 @@ namespace TECAirlines_WebAPI.Classes
                 }
             }
         }
+
+        public static string GetUniversities()
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "select uni_name from UNIVERSITY";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            List<string> unis_lst = new List<string>();
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        unis_lst.Add(reader.GetString(0));
+                    }
+                    connection.Close();
+                    return JSONHandler.BuildListStrResult("universities", unis_lst);
+                }
+                else
+                {
+                    connection.Close();
+                    return JSONHandler.BuildMsgJSON(0, "No universities were found.");
+                }
+            }
+        }
         
         public static string GetFlightDetails(string flight_id)
         {

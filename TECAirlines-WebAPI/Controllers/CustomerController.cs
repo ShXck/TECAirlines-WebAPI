@@ -13,9 +13,10 @@ namespace TECAirlines_WebAPI.Controllers
     public class CustomerController : ApiController
     {
 
-        [HttpGet, Route("tecairlines/flights")]
+        [HttpPost, Route("tecairlines/flights")]
         public IHttpActionResult SearchFlight([FromBody]string search_params)
         {
+            System.Diagnostics.Debug.WriteLine(search_params);
             string query_result = CustomerSQLHandler.FindFlight(JsonConvert.DeserializeObject<Flight>(search_params));
             return Ok(query_result);
         }
@@ -76,6 +77,13 @@ namespace TECAirlines_WebAPI.Controllers
             int query_result = CustomerSQLHandler.AddCreditCard(JsonConvert.DeserializeObject<CCard>(card_details));
             if (query_result == 1) return Ok(JSONHandler.BuildMsgJSON(1, "Success"));
             else return CheckQueryResult(500, String.Empty);
+        }
+
+        [HttpGet, Route("tecairlines/universities")]
+        public IHttpActionResult GetUniversities()
+        {
+            string result = CustomerSQLHandler.GetUniversities();
+            return Ok(result);
         }
 
         private IHttpActionResult CheckQueryResult(int result, string message)
