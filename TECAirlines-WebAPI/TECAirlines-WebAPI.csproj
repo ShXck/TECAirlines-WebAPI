@@ -175,6 +175,7 @@
     <Compile Include="Classes\Sale.cs" />
     <Compile Include="Classes\AdminSQLHandler.cs" />
     <Compile Include="Classes\SQLHelper.cs" />
+    <Compile Include="Classes\University.cs" />
     <Compile Include="Controllers\AirportController.cs" />
     <Compile Include="Controllers\CustomerController.cs" />
     <Compile Include="Controllers\HomeController.cs" />

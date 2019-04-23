@@ -43,7 +43,7 @@ namespace TECAirlines_WebAPI.Controllers
             return CheckInsertionResult(query_result);
         }
 
-        [HttpGet, Route("tecairlines/admin/flights")]
+        [HttpGet, Route("tecairlines/admin/flights/active")]
         public IHttpActionResult GetAllActiveFlights()
         {
             string query_result = AdminSQLHandler.GetActiveFlights();
@@ -94,6 +94,13 @@ namespace TECAirlines_WebAPI.Controllers
             else return Ok(JSONHandler.BuildMsgJSON(0, "Task Failed"));
         }
 
+        [HttpPost, Route("tecairlines/admin/new-uni")]
+        public IHttpActionResult InsertUniversity([FromBody] string uni)
+        {
+            int query_result = AdminSQLHandler.InsertNewUniversity(JsonConvert.DeserializeObject<University>(uni));
+            return CheckInsertionResult(query_result);
+        }
+
         [HttpPost, Route("tecairlines/admin/new-airplane")]
         public IHttpActionResult InsertAirplane([FromBody] string airp_details)
         {
@@ -114,7 +121,7 @@ namespace TECAirlines_WebAPI.Controllers
             {
                 case 1: return Ok(JSONHandler.BuildMsgJSON(1, "Task successfully executed"));
                 case 0: return Ok(JSONHandler.BuildMsgJSON(0, "Task could not be completed"));
-                case 2: return Ok(JSONHandler.BuildMsgJSON(0, "Username already exists"));
+                case 2: return Ok(JSONHandler.BuildMsgJSON(0, "Resource already exists"));
             }
             return Ok(JSONHandler.BuildMsgJSON(0, "There was an internal error. Try again later"));
         }

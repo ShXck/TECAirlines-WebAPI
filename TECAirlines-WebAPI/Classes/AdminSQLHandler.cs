@@ -103,7 +103,7 @@ namespace TECAirlines_WebAPI.Classes
 
             Tuple<int, int, int> plane_data = SQLHelper.GetPlaneDetails(flight.plane_model, connect_str); // returns <plane_id, capacity, fc_capacity>
 
-            System.Diagnostics.Debug.WriteLine(plane_data.ToString());
+            int normal_seats = plane_data.Item2 - plane_data.Item3;
 
             cmd.Parameters.Add(new SqlParameter("depart_ap", flight.depart_ap));
             cmd.Parameters.Add(new SqlParameter("arrival_ap", flight.arrival_ap));
@@ -114,7 +114,7 @@ namespace TECAirlines_WebAPI.Classes
             cmd.Parameters.Add(new SqlParameter("status", "Active"));
             cmd.Parameters.Add(new SqlParameter("normal_price", flight.normal_price));
             cmd.Parameters.Add(new SqlParameter("fc_price", flight.fc_price));
-            cmd.Parameters.Add(new SqlParameter("seats_left", plane_data.Item2));
+            cmd.Parameters.Add(new SqlParameter("seats_left", normal_seats));
             cmd.Parameters.Add(new SqlParameter("fc_seats_left", plane_data.Item3));
 
             int result = cmd.ExecuteNonQuery();
@@ -306,6 +306,27 @@ namespace TECAirlines_WebAPI.Classes
             int result = cmd.ExecuteNonQuery();
 
             connection.Close();
+
+            return result;
+        }
+
+        public static int InsertNewUniversity(University uni)
+        {
+            int result = 2;
+
+            if (!SQLHelper.UniExists(uni.uni_name, connect_str))
+            {
+                SqlConnection connection = new SqlConnection(connect_str);
+                connection.Open();
+                string req = "insert into UNIVERSITY VALUES (@name)";
+                SqlCommand cmd = new SqlCommand(req, connection);
+
+                cmd.Parameters.Add(new SqlParameter("name", uni.uni_name));
+
+                result = cmd.ExecuteNonQuery();
+
+                connection.Close();
+            }
 
             return result;
         }

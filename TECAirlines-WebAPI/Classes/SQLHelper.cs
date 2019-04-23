@@ -224,5 +224,30 @@ namespace TECAirlines_WebAPI.Classes
             connection.Close();
             return result;
         }
+
+        public static bool UniExists(string uni, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "select * from UNIVERSITY where uni_name = @name";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("name", uni));
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    connection.Close();
+                    return true;
+                }
+                else
+                {
+                    connection.Close();
+                    return false;
+                }
+            }
+        }
     }
 }
