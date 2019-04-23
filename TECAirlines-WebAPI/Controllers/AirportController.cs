@@ -61,7 +61,6 @@ namespace TECAirlines_WebAPI.Controllers
         public IHttpActionResult GetAllAirplanes()
         {
             string query_result = AdminSQLHandler.GetAirplanes();
-            System.Diagnostics.Debug.WriteLine(query_result);
             return Ok(query_result);
         }
 

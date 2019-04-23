@@ -31,8 +31,8 @@ namespace TECAirlines_WebAPI.Controllers
         [HttpGet, Route("tecairlines/cost")]
         public IHttpActionResult GetReservationCost([FromBody] string reservation)
         {
-            string cost = CustomerSQLHandler.GetReservationCost(JsonConvert.DeserializeObject<Reservation>(reservation));
-            return Ok(cost);
+            Tuple<int, string> cost = CustomerSQLHandler.GetReservationCost(JsonConvert.DeserializeObject<Reservation>(reservation));
+            return Ok(cost.Item2);
         }
 
         [HttpPost, Route("tecairlines/{user}/pay-flight")]

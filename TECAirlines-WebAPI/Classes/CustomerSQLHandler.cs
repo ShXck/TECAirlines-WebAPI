@@ -96,7 +96,7 @@ namespace TECAirlines_WebAPI.Classes
             return result;
         }
 
-        public static string GetReservationCost(Reservation res)
+        public static Tuple<int, string> GetReservationCost(Reservation res)
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
@@ -124,7 +124,7 @@ namespace TECAirlines_WebAPI.Classes
             }
             cost -= cost * discount;
             connection.Close();
-            return JSONHandler.BuildCost((int)cost);
+            return new Tuple<int, string>((int)cost, JSONHandler.BuildCost((int)cost));
         }
 
         public static string BookFlight(Reservation b_detail)
@@ -181,12 +181,14 @@ namespace TECAirlines_WebAPI.Classes
             string req = "insert into RESERVATION VALUES (@username, @flight_id, @type, @is_fc, @people, @cost)";
             SqlCommand cmd = new SqlCommand(req, connection);
 
+            Tuple<int, string> res_cost = GetReservationCost(res);
+
             cmd.Parameters.Add(new SqlParameter("username", res.username));
             cmd.Parameters.Add(new SqlParameter("flight_id", res.flight_id));
             cmd.Parameters.Add(new SqlParameter("type", res.type));
             cmd.Parameters.Add(new SqlParameter("is_fc", res.is_first_class));
             cmd.Parameters.Add(new SqlParameter("people", res.people_flying));
-            cmd.Parameters.Add(new SqlParameter("cost", GetReservationCost(res)));
+            cmd.Parameters.Add(new SqlParameter("cost", res_cost.Item1));
 
             int result = cmd.ExecuteNonQuery();
 
