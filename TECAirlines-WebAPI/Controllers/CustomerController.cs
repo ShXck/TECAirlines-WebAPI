@@ -86,7 +86,17 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(result);
         }
 
-
+        [HttpGet, Route("tecairlines/{username}/student")]
+        public IHttpActionResult CheckStudent([FromUri] string username)
+        {
+            if(CustomerSQLHandler.IsStudent(username))
+            {
+                return Ok(JSONHandler.BuildMsgJSON(1, "True"));
+            } else
+            {
+                return Ok(JSONHandler.BuildMsgJSON(1, "False"));
+            }
+        }
 
         private IHttpActionResult CheckQueryResult(int result, string message)
         {

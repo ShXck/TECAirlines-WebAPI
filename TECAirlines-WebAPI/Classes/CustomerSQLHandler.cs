@@ -200,6 +200,13 @@ namespace TECAirlines_WebAPI.Classes
 
                 if (res.is_first_class) ReduceSeatsLeft(res.flight_id, "fc_seats_left", amount);
                 else ReduceSeatsLeft(res.flight_id, "seats_left", amount);
+                
+                if(IsStudent(res.username))
+                {
+                    Random rand = new Random();
+                    SQLHelper.AddStudentMiles(res.username, rand.Next(500, 1000), connect_str);
+                }
+
                 connection.Close();
                 return JSONHandler.BuildMsgJSON(1, "Reservation was placed succesfully. Thank you.");
             }
@@ -222,7 +229,7 @@ namespace TECAirlines_WebAPI.Classes
 
             cmd.ExecuteNonQuery();
 
-            if (SQLHelper.IsFlightFull(flight_id, connect_str)) SetFullFlight(flight_id);
+            //if (SQLHelper.IsFlightFull(flight_id, connect_str)) SetFullFlight(flight_id);
         }
 
         private static void SetFullFlight(string flight_id)
@@ -396,6 +403,32 @@ namespace TECAirlines_WebAPI.Classes
             }
             connection.Close();
             return message;
+        }
+
+        public static bool IsStudent(string username)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "select is_student from CUSTOMER where username = @name";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("name", username));
+
+            bool result = false;
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        result = reader.GetBoolean(0);
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

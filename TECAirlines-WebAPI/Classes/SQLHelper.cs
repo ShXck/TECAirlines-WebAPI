@@ -15,7 +15,7 @@ namespace TECAirlines_WebAPI.Classes
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
             string req = "select username from " + table + " where username = @user";
-         
+
             SqlCommand cmd = new SqlCommand(req, connection);
 
             cmd.Parameters.Add(new SqlParameter("user", username));
@@ -83,7 +83,7 @@ namespace TECAirlines_WebAPI.Classes
                     return false;
                 }
             }
-        } 
+        }
 
         public static Tuple<int, int, int> GetPlaneDetails(string model, string connect_str)
         {
@@ -101,13 +101,13 @@ namespace TECAirlines_WebAPI.Classes
             {
                 if (reader.HasRows)
                 {
-                    while(reader.Read())
+                    while (reader.Read())
                     {
                         result = new Tuple<int, int, int>(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2));
                     }
                     connection.Close();
                     return result;
-                }               
+                }
             }
             return result;
         }
@@ -156,7 +156,7 @@ namespace TECAirlines_WebAPI.Classes
             {
                 if (reader.HasRows)
                 {
-                    while(reader.Read())
+                    while (reader.Read())
                     {
                         result = Convert.ToInt32(reader[0]);
                     }
@@ -248,6 +248,49 @@ namespace TECAirlines_WebAPI.Classes
                     return false;
                 }
             }
+        }
+
+        public static int GetStudentMiles(string username, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "select st_miles from STUDENTS where username = @name";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("name", username));
+
+            int result = 0;
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        result = reader.GetInt32(0);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static void AddStudentMiles(string username, int miles, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "update STUDENTS set st_miles = @miles where username = @user";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            int curr_miles = GetStudentMiles(username, connect_str);
+            int new_miles = curr_miles + miles;
+
+            cmd.Parameters.Add(new SqlParameter("miles", new_miles));
+            cmd.Parameters.Add(new SqlParameter("user", username));
+
+            cmd.ExecuteNonQuery();
         }
     }
 }
