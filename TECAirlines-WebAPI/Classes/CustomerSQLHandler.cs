@@ -283,33 +283,15 @@ namespace TECAirlines_WebAPI.Classes
 
         public static string GetUserFlights(string user)
         {
-            SqlConnection connection = new SqlConnection(connect_str);
-            connection.Open();
+            List<string> flight_ids = SQLHelper.GetUserFlightID(user, connect_str);
 
-            string req = "select flight_id from RESERVATION where username = @user";
-            SqlCommand cmd = new SqlCommand(req, connection);
+            List<string> flights = new List<string>();
 
-            cmd.Parameters.Add(new SqlParameter("user", user));
-
-            List<string> user_res = new List<string>();
-
-            using (SqlDataReader reader = cmd.ExecuteReader())
+            for(int i = 0; i < flight_ids.Count; i++)
             {
-                if (reader.HasRows)
-                {
-                    while (reader.Read())
-                    {
-                        user_res.Add(reader.GetString(0));
-                    }
-                    connection.Close();
-                    return JSONHandler.BuildListStrResult("flights", user_res);
-                }
-                else
-                {
-                    connection.Close();
-                    return JSONHandler.BuildMsgJSON(0, "No flights were found.");
-                }
+                flights.Add(SQLHelper.GetAirportFlightData(flight_ids.ElementAt(i), connect_str));
             }
+            return JSONHandler.BuildListStrResult("flights", flights);
         }
 
         public static string GetCards(string username)
@@ -428,6 +410,73 @@ namespace TECAirlines_WebAPI.Classes
                 }
             }
 
+            return result;
+        }
+
+        public static string PreCheckCustomer(string username, string flight, List<string> seats)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "insert into PRE_CHECKING VALUES(@flight, @user)";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("flight", flight));
+            cmd.Parameters.Add(new SqlParameter("user", username));
+
+            int result = cmd.ExecuteNonQuery();
+
+            if(result == 1)
+            {
+                return SetCustomerSeats(seats, username);
+            } else
+            {
+                connection.Close();
+                return JSONHandler.BuildMsgJSON(0, "Pre Check could not be completed. Try again later.");
+            }
+        }
+
+        private static string SetCustomerSeats(List<string> seats, string username)
+        {
+            int id_precheck = SQLHelper.GetPreCheckId(username, connect_str);
+
+            if (id_precheck != 0)
+            {
+                for (int i = 0; i < seats.Count; i++)
+                {
+                    SQLHelper.AddCustomerSeat(id_precheck, seats.ElementAt(i), connect_str);
+                }
+                return JSONHandler.BuildMsgJSON(1, "Seats Succesfully placed.");
+            } else
+            {
+                return JSONHandler.BuildMsgJSON(0, "There was an error while placing your seats. Try again later.");
+            }
+        }
+
+        public static string GetPeopleFlying(string username, string flight)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "select people_flying from RESERVATION where flight_id = @flight and username = @user";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("flight", flight));
+            cmd.Parameters.Add(new SqlParameter("user", username));
+
+            string result = JSONHandler.BuildMsgJSON(0, "There was an error retrieving your data. Try again later.");
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        return result = JSONHandler.BuildPeopleFlying(reader.GetInt32(0));
+                    }
+                }
+            }
+            connection.Close();
             return result;
         }
     }

@@ -272,7 +272,7 @@ namespace TECAirlines_WebAPI.Classes
                     }
                 }
             }
-
+            connection.Close();
             return result;
         }
 
@@ -291,6 +291,103 @@ namespace TECAirlines_WebAPI.Classes
             cmd.Parameters.Add(new SqlParameter("user", username));
 
             cmd.ExecuteNonQuery();
+
+            connection.Close();
         }
+
+        public static List<string> GetUserFlightID(string user, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "select flight_id from RESERVATION where username = @user";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("user", user));
+
+            List<string> fl_ids = new List<string>();
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        fl_ids.Add(reader.GetString(0));
+                    }
+                }
+            }
+            connection.Close();
+            return fl_ids;
+        }
+
+        public static string GetAirportFlightData(string flight_id, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "select depart_ap, arrival_ap from FLIGHT where flight_id = @fl";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("fl", flight_id));
+
+            string data = "";
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        data = JSONHandler.BuildUserFlightResult(flight_id, reader.GetString(0), reader.GetString(1));
+                    }
+                }
+            }
+            connection.Close();
+            return data;
+        }
+
+        public static int GetPreCheckId(string username, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "select id_prechecking from PRE_CHECKING where username = @user";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("user", username));
+
+            int id = 0;
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        id = reader.GetInt32(0);
+                    }
+                }
+            }
+            connection.Close();
+            return id;
+        }
+
+        public static void AddCustomerSeat(int precheck, string seat, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "insert into PRE_CHECKING_SEATS VALUES(@id, @seat)";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("id", precheck));
+            cmd.Parameters.Add(new SqlParameter("seat", seat));
+
+            cmd.ExecuteNonQuery();
+
+            connection.Close();
+        }
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,15 @@ namespace TECAirlines_WebAPI.Classes
             search_result["depart_date"] = fl_date;
             search_result["price"] = price;
             search_result["fc_price"] = fc_price;
+            return search_result.ToString();
+        }
+
+        public static string BuildUserFlightResult(string flight_id, string depart, string arrival)
+        {
+            JObject search_result = new JObject();
+            search_result["flight_id"] = flight_id;
+            search_result["depart_ap"] = depart;
+            search_result["arrival_ap"] = arrival;
             return search_result.ToString();
         }
 
@@ -67,6 +77,20 @@ namespace TECAirlines_WebAPI.Classes
             cost_json["cost"] = cost;
             cost_json["http_result"] = 1;
             return cost_json.ToString();
+        }
+
+        public static string BuildPeopleFlying(int ppl)
+        {
+            JObject cost_json = new JObject();
+            cost_json["people"] = ppl;
+            cost_json["http_result"] = 1;
+            return cost_json.ToString();
+        }
+
+        public static List<string> JArrayToList(string jarray)
+        {
+            JArray arr = JArray.Parse(jarray);
+            return arr.ToObject<List<string>>();
         }
 
         public static string FormatAsString(Object obj)

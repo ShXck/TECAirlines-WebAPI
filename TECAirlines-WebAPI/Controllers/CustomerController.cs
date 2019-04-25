@@ -98,6 +98,21 @@ namespace TECAirlines_WebAPI.Controllers
             }
         }
 
+        [HttpPost, Route("tecairlines/precheck/{user}/{flight}")]
+        public IHttpActionResult PreCheckCustomer([FromUri] string user, [FromUri] string flight, [FromBody] string seats) 
+        {
+            // expected format of seats '["A", "B", "C", "D", ...]'
+            string query_result = CustomerSQLHandler.PreCheckCustomer(user, flight, JSONHandler.JArrayToList(seats));
+            return Ok(query_result);
+        }
+
+        [HttpGet, Route("tecairlines/{user}/{flight}/people")]
+        public IHttpActionResult GetPeopleFlying([FromUri] string user, [FromUri] string flight)
+        {
+            string query_result = CustomerSQLHandler.GetPeopleFlying(user, flight);
+            return Ok(query_result);
+        }
+
         private IHttpActionResult CheckQueryResult(int result, string message)
         {
             switch (result)
