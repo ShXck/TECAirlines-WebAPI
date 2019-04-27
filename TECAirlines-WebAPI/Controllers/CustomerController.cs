@@ -13,6 +13,11 @@ namespace TECAirlines_WebAPI.Controllers
     public class CustomerController : ApiController
     {
 
+        /// <summary>
+        /// Busca vuelos a partir de los puntos de destino y salida.
+        /// </summary>
+        /// <param name="search_params"> Los puntos de salida y destino.</param> 
+        /// <returns>Los vuelos que cumplen con los parámetros dados.</returns>
         [HttpPost, Route("tecairlines/flights")]
         public IHttpActionResult SearchFlight([FromBody]string search_params)
         {
@@ -21,6 +26,11 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(query_result);
         }
 
+        /// <summary>
+        /// Reserva un vuelo.
+        /// </summary>
+        /// <param name="book_det">La información de la reservación.</param>
+        /// <returns>El resultado de la operación.</returns>
         [HttpPost, Route("tecairlines/booking")]
         public IHttpActionResult BookFlight([FromBody] string book_det)
         {
@@ -28,6 +38,11 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(query_result);
         }
 
+        /// <summary>
+        /// Obtiene el costo de una reservación.
+        /// </summary>
+        /// <param name="reservation">La información de la reservación</param>
+        /// <returns>El costo de la reservación.</returns>
         [HttpGet, Route("tecairlines/cost")]
         public IHttpActionResult GetReservationCost([FromBody] string reservation)
         {
@@ -35,6 +50,12 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(cost.Item2);
         }
 
+        /// <summary>
+        /// Paga por una reservación hecha.
+        /// </summary>
+        /// <param name="paym_det">Detalles de la forma de pago.</param>
+        /// <param name="user">El usuario que está pagando.</param>
+        /// <returns>El resultado de la operación.</returns>
         [HttpPost, Route("tecairlines/{user}/pay-flight")]
         public IHttpActionResult PayFlight([FromBody] string paym_det, [FromUri] string user)
         {
@@ -43,6 +64,11 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Obtiene las tarjetas registradas por un usuario.
+        /// </summary>
+        /// <param name="username">El nombre de usuario.</param>
+        /// <returns>El resultado de la operación.</returns>
         [HttpGet, Route("tecairlines/{username}/cards")]
         public IHttpActionResult GetUserCards([FromUri] string username)
         {
@@ -50,6 +76,11 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(cards_json);
         }
 
+        /// <summary>
+        /// Obtiene los detalles de un vuelo específico.
+        /// </summary>
+        /// <param name="flight">La identificación del vuelo.</param>
+        /// <returns>Los detalles del vuelo especificado.</returns>
         [HttpGet, Route("tecairlines/flights/{flight}")]
         public IHttpActionResult GetFlightDetails([FromUri] string flight)
         {
@@ -57,6 +88,11 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Obtiene los vuelos reservados de un usuario.
+        /// </summary>
+        /// <param name="user">El nombre de usuario.</param>
+        /// <returns>Los vuelos del cliente especificado.</returns>
         [HttpGet, Route("tecairlines/{user}/flights")]
         public IHttpActionResult GetUserFlights([FromUri] string user)
         {
@@ -64,6 +100,11 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Inicio de sesión de un cliente.
+        /// </summary>
+        /// <param name="usr_credentials">Los credenciales del usuario.</param>
+        /// <returns>El resultado de la operación.</returns>
         [HttpPost, Route("tecairlines/login")]
         public IHttpActionResult CustomerLogin([FromBody] string usr_credentials)
         {
@@ -71,6 +112,11 @@ namespace TECAirlines_WebAPI.Controllers
             return CheckQueryResult(query_result, JSONHandler.BuildMsgJSON(1, "Login successful"));
         }
 
+        /// <summary>
+        /// Agrega un método de pago.
+        /// </summary>
+        /// <param name="card_details">Los detalles del método de pago.</param>
+        /// <returns>El resultado de la operación.</returns>
         [HttpPost, Route("tecairlines/payment")]
         public IHttpActionResult AddPaymentMethod([FromBody] string card_details)
         {
@@ -79,6 +125,10 @@ namespace TECAirlines_WebAPI.Controllers
             else return CheckQueryResult(500, String.Empty);
         }
 
+        /// <summary>
+        /// Obtiene las universidades registradas.
+        /// </summary>
+        /// <returns>El resultado de la operación.</returns>
         [HttpGet, Route("tecairlines/universities")]
         public IHttpActionResult GetUniversities()
         {
@@ -86,6 +136,11 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Verifica si un usuario es estudiante o no.
+        /// </summary>
+        /// <param name="username">El nombre de usuario.</param>
+        /// <returns>Si es estudiante o no.</returns>
         [HttpGet, Route("tecairlines/{username}/student")]
         public IHttpActionResult CheckStudent([FromUri] string username)
         {
@@ -98,10 +153,15 @@ namespace TECAirlines_WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Prechequeo de pasajeros.
+        /// </summary>
+        /// <param name="user">El nombre de usuario</param>
+        /// <param name="flight">La identificación de vuelo.</param>
+        /// <returns>El resultado de la operación.</returns>
         [HttpPost, Route("tecairlines/precheck/{user}/{flight}")]
         public IHttpActionResult PreCheckCustomer([FromUri] string user, [FromUri] string flight) 
         {
-            // expected format of seats '["A", "B", "C", "D", ...]'
             string query_result = CustomerSQLHandler.PreCheckCustomer(user, flight);
             return Ok(query_result);
         }
@@ -113,12 +173,22 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(query_result);
         }*/
 
+        /// <summary>
+        /// Obtiene todas las promociones que hay.
+        /// </summary>
+        /// <returns>Las promociones de los vuelos.</returns>
         [HttpGet, Route("tecairlines/sales")]
         public IHttpActionResult GetSales()
         {
             return Ok(CustomerSQLHandler.GetFlightSales());
         }
 
+        /// <summary>
+        /// Verifica el estado de la operación.
+        /// </summary>
+        /// <param name="result">El resultado de la operación.</param>
+        /// <param name="message">Mensaje de retorno.</param>
+        /// <returns>El resultado de la operación.</returns>
         private IHttpActionResult CheckQueryResult(int result, string message)
         {
             switch (result)

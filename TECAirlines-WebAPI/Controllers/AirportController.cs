@@ -12,6 +12,11 @@ namespace TECAirlines_WebAPI.Controllers
 {
     public class AirportController : ApiController
     {
+        /// <summary>
+        /// Registra un nuevo cliente.
+        /// </summary>
+        /// <param name="cust_data">Los datos del cliente.</param>
+        /// <returns>El resultado de la operación.</returns>
         [HttpPost, Route("tecairlines/signup")]
         public IHttpActionResult CreateCustomer([FromBody]string cust_data)
         {
@@ -19,6 +24,11 @@ namespace TECAirlines_WebAPI.Controllers
             return CheckInsertionResult(query_result);
         }
 
+        /// <summary>
+        /// Registra un nuevo administrador.
+        /// </summary>
+        /// <param name="admin_data">Los datos del administrador.</param>
+        /// <returns>El resultado de la operación.</returns>
         [HttpPost, Route("tecairlines/admin/signup")]
         public IHttpActionResult CreateAdmin([FromBody]string admin_data)
         {
@@ -28,6 +38,11 @@ namespace TECAirlines_WebAPI.Controllers
             return CheckInsertionResult(query_result);
         }
 
+        /// <summary>
+        /// Regista un nuevo vuelo.
+        /// </summary>
+        /// <param name="flight_data">Los datos del vuelo.</param>
+        /// <returns>El resultado de la operación.</returns>
         [HttpPost, Route("tecairlines/admin/new-flight")]
         public IHttpActionResult CreateFlight([FromBody]string flight_data)
         {
@@ -36,6 +51,11 @@ namespace TECAirlines_WebAPI.Controllers
             return CheckInsertionResult(query_result);
         }
 
+        /// <summary>
+        /// Registra una nueva promoción.
+        /// </summary>
+        /// <param name="sale_data">Los datos de la promoción.</param>
+        /// <returns>El resultado de la operación.</returns>
         [HttpPost, Route("tecairlines/admin/new-sale")]
         public IHttpActionResult CreateSale([FromBody]string sale_data)
         {
@@ -43,6 +63,10 @@ namespace TECAirlines_WebAPI.Controllers
             return CheckInsertionResult(query_result);
         }
 
+        /// <summary>
+        /// Obtiene todos los vuelos que están activos y llenos.
+        /// </summary>
+        /// <returns>Los vuelos activos y llenos.</returns>
         [HttpGet, Route("tecairlines/admin/flights/active")]
         public IHttpActionResult GetAllActiveFlights()
         {
@@ -50,6 +74,10 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(query_result);
         }
 
+        /// <summary>
+        /// Obtiene todos los aeropuertos.
+        /// </summary>
+        /// <returns>Los aeropuertos registrados.</returns>
         [HttpGet, Route("tecairlines/admin/airports")]
         public IHttpActionResult GetAllAirports()
         {
@@ -57,6 +85,10 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(query_result);
         }
 
+        /// <summary>
+        /// Obtiene todos los aviones.
+        /// </summary>
+        /// <returns>Los modelos de avión registrados.</returns>
         [HttpGet, Route("tecairlines/admin/airplanes")]
         public IHttpActionResult GetAllAirplanes()
         {
@@ -64,6 +96,11 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(query_result);
         }
 
+        /// <summary>
+        /// Inicio de sesión de un administrador.
+        /// </summary>
+        /// <param name="adm_credentials">Los credenciales del admin.</param>
+        /// <returns>El resultado de la operación.</returns>
         [HttpPost, Route("tecairlines/admin/login")]
         public IHttpActionResult LoginAdmin([FromBody]string adm_credentials)
         {
@@ -78,6 +115,11 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(JSONHandler.BuildMsgJSON(0, "There was an internal error"));
         }
 
+        /// <summary>
+        /// Obtiene las reservaciones de un vuelo.
+        /// </summary>
+        /// <param name="flight">El identificador de un vuelo.</param>
+        /// <returns>El resultado de la operación.</returns>
         [HttpGet, Route("tecairlines/admin/{flight}/reservations")]
         public IHttpActionResult GetFlightReservation([FromUri] string flight)
         {
@@ -85,6 +127,11 @@ namespace TECAirlines_WebAPI.Controllers
             return Ok(reservations);
         }
 
+        /// <summary>
+        /// Cierra un vuelo activo.
+        /// </summary>
+        /// <param name="flight">El identificador del vuelo.</param>
+        /// <returns>El resultado de la operación.</returns>
         [HttpPut, Route("tecairlines/admin/close/{flight}")]
         public IHttpActionResult CloseFlight([FromUri] string flight)
         {
@@ -93,12 +140,18 @@ namespace TECAirlines_WebAPI.Controllers
             else return Ok(JSONHandler.BuildMsgJSON(0, "Task Failed"));
         }
 
+        /// <summary>
+        /// Agrega una nueva universidad.
+        /// </summary>
+        /// <param name="uni">El nombre de la universidad.</param>
+        /// <returns>El resultado de la operación.</returns>
         [HttpPost, Route("tecairlines/admin/new-uni")]
         public IHttpActionResult InsertUniversity([FromBody] string uni)
         {
             int query_result = AdminSQLHandler.InsertNewUniversity(JsonConvert.DeserializeObject<University>(uni));
             return CheckInsertionResult(query_result);
         }
+
 
         [HttpPost, Route("tecairlines/admin/new-airplane")]
         public IHttpActionResult InsertAirplane([FromBody] string airp_details)
@@ -114,6 +167,11 @@ namespace TECAirlines_WebAPI.Controllers
             return CheckInsertionResult(query_result);
         }
 
+        /// <summary>
+        /// verifica el estado de una inserción a la base.
+        /// </summary>
+        /// <param name="result">El resultado de la operación.</param>
+        /// <returns>Mensaje de retorno.</returns>
         private IHttpActionResult CheckInsertionResult(int result)
         {
             switch(result)

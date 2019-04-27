@@ -11,6 +11,11 @@ namespace TECAirlines_WebAPI.Classes
     {
         private static readonly string connect_str = "Data Source=.;Initial Catalog=TecAirlinesDB;Integrated Security=True";
 
+        /// <summary>
+        /// Busca vuelos en la base a partir de los datos del vuelo.
+        /// </summary>
+        /// <param name="flight">Los datos del vuelo.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static string FindFlight(Flight flight)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -46,6 +51,11 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
+        /// <summary>
+        /// Verifica las credenciales de inicio de un Cliente.
+        /// </summary>
+        /// <param name="cust">Los datos del cliente.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static int LoginCustomer(Customer cust)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -73,6 +83,11 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
+        /// <summary>
+        /// Agrega una nueva tarjeta a la base.
+        /// </summary>
+        /// <param name="card">Los datos de la tarjeta.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static int AddCreditCard(CCard card)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -96,6 +111,11 @@ namespace TECAirlines_WebAPI.Classes
             return result;
         }
 
+        /// <summary>
+        /// Calcula el costo de la reservación.
+        /// </summary>
+        /// <param name="res">Los datos de reservación.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static Tuple<int, string> GetReservationCost(Reservation res)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -127,6 +147,11 @@ namespace TECAirlines_WebAPI.Classes
             return new Tuple<int, string>((int)cost, JSONHandler.BuildCost((int)cost));
         }
 
+        /// <summary>
+        /// Crea una reservación en la base.
+        /// </summary>
+        /// <param name="b_detail">Los detalles de la reservación.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static string BookFlight(Reservation b_detail)
         {
             if (SQLHelper.CheckFlightState(b_detail.flight_id, connect_str).Equals("Active"))
@@ -173,6 +198,12 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
+        /// <summary>
+        /// Inserta la reservación en la base.
+        /// </summary>
+        /// <param name="res">Detalles de la reservación.</param>
+        /// <param name="curr_seats">Asientos disponibles.</param>
+        /// <returns>El resultado de la operación.</returns>
         private static string SetReservation(Reservation res, int curr_seats)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -217,6 +248,12 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
+        /// <summary>
+        /// Reduce los asientos disponibles en el vuelo.
+        /// </summary>
+        /// <param name="flight_id">El id del vuelo.</param>
+        /// <param name="type">El tipo de vuelo.</param>
+        /// <param name="amount">Número de asientos disponibles luego de actualización.</param>
         private static void ReduceSeatsLeft(string flight_id, string type, int amount)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -245,7 +282,13 @@ namespace TECAirlines_WebAPI.Classes
             cmd.ExecuteNonQuery();
         }
 
-
+        /// <summary>
+        /// Paga un vuelo y cambia el estado en la base.
+        /// </summary>
+        /// <param name="card_number">Número de tarjeta.</param>
+        /// <param name="sec_code">Código de seguridad.</param>
+        /// <param name="user">El nombre de usuario.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static string PayFlight(string card_number, string sec_code, string user)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -281,6 +324,11 @@ namespace TECAirlines_WebAPI.Classes
             return result;
         }
 
+        /// <summary>
+        /// Obtiene los vuelos de un usuario.
+        /// </summary>
+        /// <param name="user">El nombre de usuario.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static string GetUserFlights(string user)
         {
             List<string> flight_ids = SQLHelper.GetUserFlightID(user, connect_str);
@@ -294,6 +342,11 @@ namespace TECAirlines_WebAPI.Classes
             return JSONHandler.BuildListStrResult("flights", flights);
         }
 
+        /// <summary>
+        /// Obtiene las tarjetas de un cliente.
+        /// </summary>
+        /// <param name="username">El nombre de usuario.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static string GetCards(string username)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -325,6 +378,10 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
+        /// <summary>
+        /// Obtiene las universidades registradas.
+        /// </summary>
+        /// <returns>Universidades en la base.</returns>
         public static string GetUniversities()
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -353,7 +410,12 @@ namespace TECAirlines_WebAPI.Classes
                 }
             }
         }
-        
+
+        /// <summary>
+        /// Obtiene los detalles de un vuelo.
+        /// </summary>
+        /// <param name="flight_id">El id del vuelo.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static string GetFlightDetails(string flight_id)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -387,6 +449,11 @@ namespace TECAirlines_WebAPI.Classes
             return message;
         }
 
+        /// <summary>
+        /// Verifica si un cliente es también estudiante.
+        /// </summary>
+        /// <param name="username">El nombre de usuario.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static bool IsStudent(string username)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -413,6 +480,12 @@ namespace TECAirlines_WebAPI.Classes
             return result;
         }
 
+        /// <summary>
+        /// Prechequea a un cliente en la base.
+        /// </summary>
+        /// <param name="username">El nombre de usuario.</param>
+        /// <param name="flight">El identificador del vuelo.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static string PreCheckCustomer(string username, string flight)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -436,6 +509,12 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
+        /// <summary>
+        /// Asigna asientos a los clientes.
+        /// </summary>
+        /// <param name="username">El nombre de usuario.</param>
+        /// <param name="flight">El id del identificador.</param>
+        /// <returns>El resultado de la operación.</returns>
         private static string SetCustomerSeats(string username, string flight)
         {
             int id_precheck = SQLHelper.GetPreCheckId(username, connect_str);
@@ -483,6 +562,10 @@ namespace TECAirlines_WebAPI.Classes
             return result;
         }
 
+        /// <summary>
+        /// Obtiene las promociones de los vuelos registradas en la base.
+        /// </summary>
+        /// <returns>El resultado de la operación.</returns>
         public static string GetFlightSales()
         {
             SqlConnection connection = new SqlConnection(connect_str);

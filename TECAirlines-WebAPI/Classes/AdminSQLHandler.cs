@@ -10,6 +10,11 @@ namespace TECAirlines_WebAPI.Classes
     {
         private static readonly string connect_str = "Data Source=.;Initial Catalog=TecAirlinesDB;Integrated Security=True";
 
+        /// <summary>
+        /// Hace los querys SQL necesarios para insertar un cliente.
+        /// </summary>
+        /// <param name="customer">Los datos del cliente.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static int InsertNewCustomer(Customer customer)
         {
             int result = 2;
@@ -47,6 +52,12 @@ namespace TECAirlines_WebAPI.Classes
             return result; // 1 = success, 0 = insertion error, 2 = username already exists.
         }
 
+        /// <summary>
+        /// Hace los querys necesarios para insertar un estudiante a la base.
+        /// </summary>
+        /// <param name="username">El nombre de usuario.</param>
+        /// <param name="uni">La universidad</param>
+        /// <param name="st_id">El ID de estudiante.</param>
         private static void CreateNewStudent(string username, string uni, int st_id)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -63,6 +74,11 @@ namespace TECAirlines_WebAPI.Classes
             cmd.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Inserta un nuevo administrdor en la base.
+        /// </summary>
+        /// <param name="admin">Los datos del admin.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static int CreateNewAdmin(Admin admin)
         {
             int result = 2;
@@ -94,6 +110,11 @@ namespace TECAirlines_WebAPI.Classes
             return result; // 1 = success, 0 = insertion error, 2 = username already exists.
         }
 
+        /// <summary>
+        /// Inserta un nuevo vuelo en la base.
+        /// </summary>
+        /// <param name="flight">Los datos del vuelo.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static int CreateNewFlight(Flight flight)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -124,6 +145,11 @@ namespace TECAirlines_WebAPI.Classes
             return result;
         }
 
+        /// <summary>
+        /// Inserta una nueva promoción en la base.
+        /// </summary>
+        /// <param name="sale">Los datos de la promoción.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static int CreateNewSale(Sale sale)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -143,6 +169,10 @@ namespace TECAirlines_WebAPI.Classes
             return result;
         }
 
+        /// <summary>
+        /// Obtiene los vuelos activos de la base.
+        /// </summary>
+        /// <returns>Los vuelos activos.</returns>
         public static string GetActiveFlights()
         {
             /**
@@ -176,6 +206,10 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
+        /// <summary>
+        /// Obtiene los aeropuertos en la base.
+        /// </summary>
+        /// <returns>La lista de aeropuertos.</returns>
         public static string GetAirports()
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -204,6 +238,10 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
+        /// <summary>
+        /// Obtiene los aviones en la base.
+        /// </summary>
+        /// <returns>La lista de aviones.</returns>
         public static string GetAirplanes()
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -232,6 +270,11 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
+        /// <summary>
+        /// Verifica los credenciales de un admin para el inicio de sesión.
+        /// </summary>
+        /// <param name="admin">Los credenciales del admin.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static int LoginAdmin(Admin admin)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -262,6 +305,11 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
+        /// <summary>
+        /// Obtiene las reservaciones de un vuelo.
+        /// </summary>
+        /// <param name="flight">El ID del vuelo.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static string GetFlightReservations(string flight)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -293,6 +341,11 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
+        /// <summary>
+        /// Cambia el estado de un vuelo en la base.
+        /// </summary>
+        /// <param name="flight">El identificador del vuelo.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static int CloseFlight(string flight)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -310,6 +363,11 @@ namespace TECAirlines_WebAPI.Classes
             return result;
         }
 
+        /// <summary>
+        /// Inserta una nueva universidad en la base.
+        /// </summary>
+        /// <param name="uni">Los datos de la universidad.</param>
+        /// <returns>El resultado de la operación.</returns>
         public static int InsertNewUniversity(University uni)
         {
             int result = 2;
