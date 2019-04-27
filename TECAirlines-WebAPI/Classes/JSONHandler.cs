@@ -93,6 +93,15 @@ namespace TECAirlines_WebAPI.Classes
             return arr.ToObject<List<string>>();
         }
 
+        public static string BuildSale(int discount, string d_ap, string a_ap)
+        {
+            JObject cost_json = new JObject();
+            cost_json["discount"] = discount;
+            cost_json["depart_ap"] = d_ap;
+            cost_json["arrival_ap"] = a_ap;
+            return cost_json.ToString();
+        }
+
         public static string FormatAsString(Object obj)
         {
             return String.Format("{0}", obj);

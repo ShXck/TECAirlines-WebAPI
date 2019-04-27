@@ -389,5 +389,30 @@ namespace TECAirlines_WebAPI.Classes
             connection.Close();
         }
 
+        public static int GetPlaneCapacity(string flight, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "select capacity from FLIGHT where flight_id = @id";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("id", flight));
+
+            int capacity = 0;
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        capacity = reader.GetInt32(0);
+                    }
+                }
+            }
+            connection.Close();
+            return capacity;
+        }
     }
 }

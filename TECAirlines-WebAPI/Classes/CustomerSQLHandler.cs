@@ -413,7 +413,7 @@ namespace TECAirlines_WebAPI.Classes
             return result;
         }
 
-        public static string PreCheckCustomer(string username, string flight, List<string> seats)
+        public static string PreCheckCustomer(string username, string flight, int people)
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
@@ -428,23 +428,25 @@ namespace TECAirlines_WebAPI.Classes
 
             if(result == 1)
             {
-                return SetCustomerSeats(seats, username);
+                return SetCustomerSeats(username, people, flight);
             } else
             {
                 connection.Close();
-                return JSONHandler.BuildMsgJSON(0, "Pre Check could not be completed. Try again later.");
+                return JSONHandler.BuildMsgJSON(0, "Pre Checking could not be completed. Try again later.");
             }
         }
 
-        private static string SetCustomerSeats(List<string> seats, string username)
+        private static string SetCustomerSeats(string username, int people, string flight)
         {
             int id_precheck = SQLHelper.GetPreCheckId(username, connect_str);
+            int capacity = SQLHelper.GetPlaneCapacity(flight, connect_str);
 
             if (id_precheck != 0)
             {
-                for (int i = 0; i < seats.Count; i++)
+                Random rd = new Random();
+                for (int i = 0; i < people; i++)
                 {
-                    SQLHelper.AddCustomerSeat(id_precheck, seats.ElementAt(i), connect_str);
+                    SQLHelper.AddCustomerSeat(id_precheck, rd.Next(1, capacity).ToString(), connect_str);
                 }
                 return JSONHandler.BuildMsgJSON(1, "Seats Succesfully placed.");
             } else
@@ -478,6 +480,32 @@ namespace TECAirlines_WebAPI.Classes
             }
             connection.Close();
             return result;
+        }
+
+        public static string GetFlightSales()
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "SELECT discount, depart_ap, arrival_ap FROM SALE JOIN FLIGHT ON FLIGHT.flight_id = SALE.flight_id";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            List<string> sales = new List<string>();
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        sales.Add(JSONHandler.BuildSale(reader.GetInt32(0), reader.GetString(1), reader.GetString(2)));
+                    }
+                    connection.Close();
+                    return JSONHandler.BuildListStrResult("sales", sales);
+                }
+            }
+            connection.Close();
+            return JSONHandler.BuildMsgJSON(0, "No sales were found");
         }
     }
 }
