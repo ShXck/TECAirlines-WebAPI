@@ -413,7 +413,7 @@ namespace TECAirlines_WebAPI.Classes
             return result;
         }
 
-        public static string PreCheckCustomer(string username, string flight, int people)
+        public static string PreCheckCustomer(string username, string flight)
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
@@ -428,7 +428,7 @@ namespace TECAirlines_WebAPI.Classes
 
             if(result == 1)
             {
-                return SetCustomerSeats(username, people, flight);
+                return SetCustomerSeats(username, flight);
             } else
             {
                 connection.Close();
@@ -436,10 +436,11 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
-        private static string SetCustomerSeats(string username, int people, string flight)
+        private static string SetCustomerSeats(string username, string flight)
         {
             int id_precheck = SQLHelper.GetPreCheckId(username, connect_str);
             int capacity = SQLHelper.GetPlaneCapacity(flight, connect_str);
+            int people = GetPeopleFlying(username, flight);
 
             if (id_precheck != 0)
             {
@@ -455,7 +456,7 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
-        public static string GetPeopleFlying(string username, string flight)
+        public static int GetPeopleFlying(string username, string flight)
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
@@ -466,7 +467,7 @@ namespace TECAirlines_WebAPI.Classes
             cmd.Parameters.Add(new SqlParameter("flight", flight));
             cmd.Parameters.Add(new SqlParameter("user", username));
 
-            string result = JSONHandler.BuildMsgJSON(0, "There was an error retrieving your data. Try again later.");
+            int result = 0;
 
             using (SqlDataReader reader = cmd.ExecuteReader())
             {
@@ -474,7 +475,7 @@ namespace TECAirlines_WebAPI.Classes
                 {
                     while (reader.Read())
                     {
-                        return result = JSONHandler.BuildPeopleFlying(reader.GetInt32(0));
+                        result = reader.GetInt32(0);
                     }
                 }
             }
