@@ -556,5 +556,38 @@ namespace TECAirlines_WebAPI.Classes
                 }
             }
         }
+
+        /// <summary>
+        /// Obtiene el email de un usuario.
+        /// </summary>
+        /// <param name="username">El nombre de usuario.</param>
+        /// <param name="connect_str">El string de conexión.</param>
+        /// <returns>El email del usuario.</returns>
+        public static string GetUserEmail(string username, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "select email from CUSTOMER where username = @name";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("name", username));
+
+            string result = String.Empty;
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while(reader.Read())
+                    {
+                        result = reader.GetString(0);
+                    }
+                }
+            }
+
+            connection.Close();
+            return result;
+        }
     }
 }

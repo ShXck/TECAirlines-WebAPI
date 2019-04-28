@@ -161,9 +161,9 @@ namespace TECAirlines_WebAPI.Controllers
         /// <param name="flight">La identificación de vuelo.</param>
         /// <returns>El resultado de la operación.</returns>
         [HttpPost, Route("tecairlines/precheck/{user}/{flight}")]
-        public IHttpActionResult PreCheckCustomer([FromUri] string user, [FromUri] string flight, [FromBody] string email) 
+        public IHttpActionResult PreCheckCustomer([FromUri] string user, [FromUri] string flight) 
         {
-            string query_result = CustomerSQLHandler.PreCheckCustomer(user, flight, JsonConvert.DeserializeObject<Email>(email));
+            string query_result = CustomerSQLHandler.PreCheckCustomer(user, flight);
             return Ok(query_result);
         }
 

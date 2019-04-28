@@ -491,7 +491,7 @@ namespace TECAirlines_WebAPI.Classes
         /// <param name="username">El nombre de usuario.</param>
         /// <param name="flight">El identificador del vuelo.</param>
         /// <returns>El resultado de la operación.</returns>
-        public static string PreCheckCustomer(string username, string flight, Email email)
+        public static string PreCheckCustomer(string username, string flight)
         {
             if (!SQLHelper.IsChecked(username, flight, connect_str))
             {
@@ -508,7 +508,7 @@ namespace TECAirlines_WebAPI.Classes
 
                 if (result == 1)
                 {
-                    return SetCustomerSeats(username, flight, email);
+                    return SetCustomerSeats(username, flight);
                 }
                 else
                 {
@@ -525,7 +525,7 @@ namespace TECAirlines_WebAPI.Classes
         /// <param name="username">El nombre de usuario.</param>
         /// <param name="flight">El id del identificador.</param>
         /// <returns>El resultado de la operación.</returns>
-        private static string SetCustomerSeats(string username, string flight, Email email)
+        private static string SetCustomerSeats(string username, string flight)
         {
             int id_precheck = SQLHelper.GetPreCheckId(username, connect_str);
             int capacity = SQLHelper.GetPlaneCapacity(flight, connect_str);
@@ -541,7 +541,7 @@ namespace TECAirlines_WebAPI.Classes
                     seats.Add(new_seat);
                     SQLHelper.AddCustomerSeat(id_precheck, new_seat, connect_str);
                 }
-                EmailHandler.SendEmail(email.email, EmailHandler.BuildEmailBody(username, flight, seats));
+                EmailHandler.SendEmail(SQLHelper.GetUserEmail(username, connect_str), EmailHandler.BuildEmailBody(username, flight, seats));
                 return JSONHandler.BuildMsgJSON(1, "Seats Succesfully placed.");
             } else
             {
