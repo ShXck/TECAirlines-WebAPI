@@ -92,6 +92,36 @@ namespace TECAirlines_WebAPI.Classes
             }
         }
 
+        public static bool CardExists(string number, string username, string connect_str)
+        {
+            System.Diagnostics.Debug.WriteLine(number);
+            System.Diagnostics.Debug.WriteLine(username);
+
+
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "select exp_date from PAYMENT_METHOD where card_number = @numbr and username = @name";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("name", username));
+            cmd.Parameters.Add(new SqlParameter("numbr", Cipher.Encrypt(number)));
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    connection.Close();
+                    return true;
+                }
+                else
+                {
+                    connection.Close();
+                    return false;
+                }
+            }
+        }
+
         /// <summary>
         /// Obtiene datos de un avión.
         /// </summary>
@@ -499,6 +529,32 @@ namespace TECAirlines_WebAPI.Classes
             }
             connection.Close();
             return capacity;
+        } 
+
+        public static bool IsChecked(string username, string flight, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "select id_prechecking from PRE_CHECKING where flight_id = @id and username = @name";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("id", flight));
+            cmd.Parameters.Add(new SqlParameter("name", username));
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    connection.Close();
+                    return true;
+                }
+                else
+                {
+                    connection.Close();
+                    return false;
+                }
+            }
         }
     }
 }

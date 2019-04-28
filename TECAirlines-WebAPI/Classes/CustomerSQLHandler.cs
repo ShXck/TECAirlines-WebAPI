@@ -90,24 +90,28 @@ namespace TECAirlines_WebAPI.Classes
         /// <returns>El resultado de la operación.</returns>
         public static int AddCreditCard(CCard card)
         {
-            SqlConnection connection = new SqlConnection(connect_str);
-            connection.Open();
+            int result = 2;
 
-            string req = "insert into PAYMENT_METHOD VALUES (@username, @c_nmbr, @sec_code, @exp_date)";
-            SqlCommand cmd = new SqlCommand(req, connection);
+            if (!SQLHelper.CardExists(card.card_number, card.username, connect_str))
+            {
+                SqlConnection connection = new SqlConnection(connect_str);
+                connection.Open();
 
-            string encr_cnumbr = Cipher.Encrypt(card.card_number);
-            string encr_sec = Cipher.Encrypt(card.security_code);
+                string req = "insert into PAYMENT_METHOD VALUES (@username, @c_nmbr, @sec_code, @exp_date)";
+                SqlCommand cmd = new SqlCommand(req, connection);
 
-            cmd.Parameters.Add(new SqlParameter("username", card.username));
-            cmd.Parameters.Add(new SqlParameter("c_nmbr", encr_cnumbr));
-            cmd.Parameters.Add(new SqlParameter("sec_code", encr_sec));
-            cmd.Parameters.Add(new SqlParameter("exp_date", card.exp_date));
+                string encr_cnumbr = Cipher.Encrypt(card.card_number);
+                string encr_sec = Cipher.Encrypt(card.security_code);
 
-            int result = cmd.ExecuteNonQuery();
+                cmd.Parameters.Add(new SqlParameter("username", card.username));
+                cmd.Parameters.Add(new SqlParameter("c_nmbr", encr_cnumbr));
+                cmd.Parameters.Add(new SqlParameter("sec_code", encr_sec));
+                cmd.Parameters.Add(new SqlParameter("exp_date", card.exp_date));
 
-            connection.Close();
+                result = cmd.ExecuteNonQuery();
 
+                connection.Close();
+            }
             return result;
         }
 
@@ -142,7 +146,8 @@ namespace TECAirlines_WebAPI.Classes
                     }
                 }
             }
-            cost -= cost * discount;
+
+            if(IsStudent(res.username)) cost -= cost * discount;
             connection.Close();
             return new Tuple<int, string>((int)cost, JSONHandler.BuildCost((int)cost));
         }
@@ -488,25 +493,30 @@ namespace TECAirlines_WebAPI.Classes
         /// <returns>El resultado de la operación.</returns>
         public static string PreCheckCustomer(string username, string flight)
         {
-            SqlConnection connection = new SqlConnection(connect_str);
-            connection.Open();
-            string req = "insert into PRE_CHECKING VALUES(@flight, @user)";
-
-            SqlCommand cmd = new SqlCommand(req, connection);
-
-            cmd.Parameters.Add(new SqlParameter("flight", flight));
-            cmd.Parameters.Add(new SqlParameter("user", username));
-
-            int result = cmd.ExecuteNonQuery();
-
-            if(result == 1)
+            if (!SQLHelper.IsChecked(username, flight, connect_str))
             {
-                return SetCustomerSeats(username, flight);
-            } else
-            {
-                connection.Close();
-                return JSONHandler.BuildMsgJSON(0, "Pre Checking could not be completed. Try again later.");
+                SqlConnection connection = new SqlConnection(connect_str);
+                connection.Open();
+                string req = "insert into PRE_CHECKING VALUES(@flight, @user)";
+
+                SqlCommand cmd = new SqlCommand(req, connection);
+
+                cmd.Parameters.Add(new SqlParameter("flight", flight));
+                cmd.Parameters.Add(new SqlParameter("user", username));
+
+                int result = cmd.ExecuteNonQuery();
+
+                if (result == 1)
+                {
+                    return SetCustomerSeats(username, flight);
+                }
+                else
+                {
+                    connection.Close();
+                    return JSONHandler.BuildMsgJSON(0, "Pre Checking could not be completed. Try again later.");
+                }
             }
+            return JSONHandler.BuildMsgJSON(0, "You are already Checked for this flight.");
         }
 
         /// <summary>
@@ -570,7 +580,7 @@ namespace TECAirlines_WebAPI.Classes
         {
             SqlConnection connection = new SqlConnection(connect_str);
             connection.Open();
-            string req = "SELECT discount, depart_ap, arrival_ap FROM SALE JOIN FLIGHT ON FLIGHT.flight_id = SALE.flight_id";
+            string req = "SELECT discount, depart_ap, arrival_ap, exp_date FROM SALE JOIN FLIGHT ON FLIGHT.flight_id = SALE.flight_id";
 
             SqlCommand cmd = new SqlCommand(req, connection);
 
@@ -582,7 +592,7 @@ namespace TECAirlines_WebAPI.Classes
                 {
                     while (reader.Read())
                     {
-                        sales.Add(JSONHandler.BuildSale(reader.GetInt32(0), reader.GetString(1), reader.GetString(2)));
+                        sales.Add(JSONHandler.BuildSale(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetDateTime(3)));
                     }
                     connection.Close();
                     return JSONHandler.BuildListStrResult("sales", sales);

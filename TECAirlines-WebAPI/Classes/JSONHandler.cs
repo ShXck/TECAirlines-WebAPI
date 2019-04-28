@@ -158,12 +158,13 @@ namespace TECAirlines_WebAPI.Classes
         /// <param name="d_ap">Salida.</param>
         /// <param name="a_ap">Destino.</param>
         /// <returns>El JSON con la información.</returns>
-        public static string BuildSale(int discount, string d_ap, string a_ap)
+        public static string BuildSale(int discount, string d_ap, string a_ap, DateTime exp)
         {
             JObject cost_json = new JObject();
             cost_json["discount"] = discount;
             cost_json["depart_ap"] = d_ap;
             cost_json["arrival_ap"] = a_ap;
+            cost_json["exp_date"] = exp;
             return cost_json.ToString();
         }
 

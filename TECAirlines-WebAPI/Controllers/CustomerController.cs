@@ -122,7 +122,8 @@ namespace TECAirlines_WebAPI.Controllers
         {
             int query_result = CustomerSQLHandler.AddCreditCard(JsonConvert.DeserializeObject<CCard>(card_details));
             if (query_result == 1) return Ok(JSONHandler.BuildMsgJSON(1, "Success"));
-            else return CheckQueryResult(500, String.Empty);
+            else if(query_result == 2) return Ok(JSONHandler.BuildMsgJSON(0, "Card already exists."));
+            else return Ok(JSONHandler.BuildMsgJSON(0, "There was a problem adding your credit card."));
         }
 
         /// <summary>
