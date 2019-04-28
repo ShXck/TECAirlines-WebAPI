@@ -17,7 +17,7 @@ namespace TECAirlines_WebAPI.Classes
         {
             var fromAddress = new MailAddress("m4ss97@gmail.com", "TEC Airlines");
             var toAddress = new MailAddress(to_email, "Client Reservation");
-            const string fromPassword = "jijijijajaja516";
+            const string fromPassword = "yourpass";
             const string subject = "Your Flight Reservation";
 
             var smtp = new SmtpClient
