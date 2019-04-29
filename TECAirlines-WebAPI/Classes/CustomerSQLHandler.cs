@@ -309,7 +309,7 @@ namespace TECAirlines_WebAPI.Classes
                 }
                 else result = JSONHandler.BuildMsgJSON(0, "You don't have enough miles to pay this flight.");
             } else {
-                System.Diagnostics.Debug.WriteLine("NO PAY MILES");
+
                 SqlConnection connection = new SqlConnection(connect_str);
                 connection.Open();
 
@@ -321,7 +321,6 @@ namespace TECAirlines_WebAPI.Classes
 
                 result = JSONHandler.BuildMsgJSON(0, "Security code does not match. Try Again.");
 
-                System.Diagnostics.Debug.WriteLine(result);
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.HasRows)
@@ -341,7 +340,6 @@ namespace TECAirlines_WebAPI.Classes
                 }
                 connection.Close();
             }
-
             return result;
         }
 
@@ -553,7 +551,7 @@ namespace TECAirlines_WebAPI.Classes
                 List<string> seats = new List<string>();
                 for (int i = 0; i < people; i++)
                 {
-                    string new_seat = rd.Next(1, capacity).ToString();
+                    string new_seat = CreateSeatStr(rd);
                     seats.Add(new_seat);
                     SQLHelper.AddCustomerSeat(id_precheck, new_seat, connect_str);
                 }
@@ -563,6 +561,13 @@ namespace TECAirlines_WebAPI.Classes
             {
                 return JSONHandler.BuildMsgJSON(0, "There was an error while placing your seats. Try again later.");
             }
+        }
+
+        private static string CreateSeatStr(Random rd)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, 3)
+              .Select(s => s[rd.Next(s.Length)]).ToArray());
         }
 
         /// <summary>
