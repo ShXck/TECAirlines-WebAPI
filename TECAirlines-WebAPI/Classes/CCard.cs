@@ -11,5 +11,6 @@ namespace TECAirlines_WebAPI.Classes
         public string exp_date;
         public string security_code;
         public string username;
+        public bool pay_miles;
     }
 }

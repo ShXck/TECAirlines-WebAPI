@@ -294,37 +294,53 @@ namespace TECAirlines_WebAPI.Classes
         /// <param name="sec_code">Código de seguridad.</param>
         /// <param name="user">El nombre de usuario.</param>
         /// <returns>El resultado de la operación.</returns>
-        public static string PayFlight(string card_number, string sec_code, string user)
+        public static string PayFlight(CCard card, string user, string flight)
         {
-            SqlConnection connection = new SqlConnection(connect_str);
-            connection.Open();
-
-            string req = "select security_code from PAYMENT_METHOD where card_number = @cnumbr and username = @user";
-            SqlCommand cmd = new SqlCommand(req, connection);
-
-            cmd.Parameters.Add(new SqlParameter("cnumbr", Cipher.Encrypt(card_number)));
-            cmd.Parameters.Add(new SqlParameter("user", user));
-
-            string result = JSONHandler.BuildMsgJSON(0, "Security code does not match. Try Again."); 
-
-            using (SqlDataReader reader = cmd.ExecuteReader())
+            string result = JSONHandler.BuildMsgJSON(0, "There was a problem while retrieving your credit card information. Try again later.");
+            if (IsStudent(user) && card.pay_miles)
             {
-                if (reader.HasRows)
+                int stud_miles = SQLHelper.GetStudentMiles(user, connect_str);
+                int miles_price = SQLHelper.GetFlightMilesPrice(flight, connect_str);
+                if (stud_miles >= miles_price)
                 {
-                    while (reader.Read())
-                    {
-                        string og_code = Cipher.Decrypt(reader.GetString(0));
-                        if (sec_code.Equals(og_code))
-                        {
-                            result = JSONHandler.BuildMsgJSON(1, "Card Authentication Succeded.");
-                        }
-                    }
-                } else
-                {
-                    result = JSONHandler.BuildMsgJSON(0, "There was a problem while retrieving your credit card information. Try again later.");
+                    int new_miles = stud_miles - miles_price;
+                    SQLHelper.UpdateMiles(user, new_miles, connect_str);
+                    result = JSONHandler.BuildMsgJSON(1, "Miles payment Succeded.");
                 }
+                else result = JSONHandler.BuildMsgJSON(0, "You don't have enough miles to pay this flight.");
+            } else {
+                System.Diagnostics.Debug.WriteLine("NO PAY MILES");
+                SqlConnection connection = new SqlConnection(connect_str);
+                connection.Open();
+
+                string req = "select security_code from PAYMENT_METHOD where card_number = @cnumbr and username = @user";
+                SqlCommand cmd = new SqlCommand(req, connection);
+
+                cmd.Parameters.Add(new SqlParameter("cnumbr", Cipher.Encrypt(card.card_number)));
+                cmd.Parameters.Add(new SqlParameter("user", user));
+
+                result = JSONHandler.BuildMsgJSON(0, "Security code does not match. Try Again.");
+
+                System.Diagnostics.Debug.WriteLine(result);
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            string og_code = Cipher.Decrypt(reader.GetString(0));
+                            if (card.security_code.Equals(og_code))
+                            {
+                                result = JSONHandler.BuildMsgJSON(1, "Card Authentication Succeded.");
+                            }
+                        }
+                    } else
+                    {
+                        result = JSONHandler.BuildMsgJSON(0, "There was a problem while retrieving your credit card information. Try again later.");
+                    }
+                }
+                connection.Close();
             }
-            connection.Close();
 
             return result;
         }

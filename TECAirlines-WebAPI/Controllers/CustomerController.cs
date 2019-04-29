@@ -56,11 +56,11 @@ namespace TECAirlines_WebAPI.Controllers
         /// <param name="paym_det">Detalles de la forma de pago.</param>
         /// <param name="user">El usuario que está pagando.</param>
         /// <returns>El resultado de la operación.</returns>
-        [HttpPost, Route("tecairlines/{user}/pay-flight")]
-        public IHttpActionResult PayFlight([FromBody] string paym_det, [FromUri] string user)
+        [HttpPost, Route("tecairlines/{user}/{flight}/pay-flight")]
+        public IHttpActionResult PayFlight([FromBody] string paym_det, [FromUri] string user, [FromUri] string flight)
         {
             CCard card = JsonConvert.DeserializeObject<CCard>(paym_det);
-            string result = CustomerSQLHandler.PayFlight(card.card_number, card.security_code, user);
+            string result = CustomerSQLHandler.PayFlight(card, user, flight);
             return Ok(result);
         }
 

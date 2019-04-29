@@ -589,5 +589,48 @@ namespace TECAirlines_WebAPI.Classes
             connection.Close();
             return result;
         }
+
+        public static int GetFlightMilesPrice(string flight, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "select miles_price from FLIGHT where flight_id = @id";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("id", flight));
+
+            int result = 0;
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        result = reader.GetInt32(0);
+                    }
+                }
+            }
+
+            connection.Close();
+            return result;
+        }
+
+        public static void UpdateMiles(string user, int amount, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+
+            string req = "update STUDENTS set st_miles = @miles  where username = @name";
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("name", user));
+            cmd.Parameters.Add(new SqlParameter("miles", amount));
+
+            cmd.ExecuteNonQuery();
+
+            connection.Close();
+        }
     }
 }
