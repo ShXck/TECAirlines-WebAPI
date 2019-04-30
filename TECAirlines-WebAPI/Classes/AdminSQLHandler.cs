@@ -8,7 +8,7 @@ namespace TECAirlines_WebAPI.Classes
 {
     public class AdminSQLHandler
     {
-        private static readonly string connect_str = "Data Source=.;Initial Catalog=TecAirlinesDB;Integrated Security=True";
+        private static readonly string connect_str = "Data Source=.;Initial Catalog=TADB2;Integrated Security=True";
 
         /// <summary>
         /// Hace los querys SQL necesarios para insertar un cliente.

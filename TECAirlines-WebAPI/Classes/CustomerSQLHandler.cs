@@ -9,7 +9,7 @@ namespace TECAirlines_WebAPI.Classes
 {
     public class CustomerSQLHandler
     {
-        private static readonly string connect_str = "Data Source=.;Initial Catalog=TecAirlinesDB;Integrated Security=True";
+        private static readonly string connect_str = "Data Source=.;Initial Catalog=TADB2;Integrated Security=True";
 
         /// <summary>
         /// Busca vuelos en la base a partir de los datos del vuelo.
@@ -296,9 +296,13 @@ namespace TECAirlines_WebAPI.Classes
         /// <returns>El resultado de la operación.</returns>
         public static string PayFlight(CCard card, string user, string flight)
         {
+            System.Diagnostics.Debug.WriteLine("CARD:" + card.card_number);
+            System.Diagnostics.Debug.WriteLine("CODE: " + card.security_code);
+            System.Diagnostics.Debug.WriteLine("USER: " + user);
             string result = JSONHandler.BuildMsgJSON(0, "There was a problem while retrieving your credit card information. Try again later.");
             if (IsStudent(user) && card.pay_miles)
             {
+                System.Diagnostics.Debug.WriteLine("IM PAYING WITH MILES");
                 int stud_miles = SQLHelper.GetStudentMiles(user, connect_str);
                 int miles_price = SQLHelper.GetFlightMilesPrice(flight, connect_str);
                 if (stud_miles >= miles_price)
@@ -309,7 +313,7 @@ namespace TECAirlines_WebAPI.Classes
                 }
                 else result = JSONHandler.BuildMsgJSON(0, "You don't have enough miles to pay this flight.");
             } else {
-
+                System.Diagnostics.Debug.WriteLine("IM NOT PAYING WITH MILES");
                 SqlConnection connection = new SqlConnection(connect_str);
                 connection.Open();
 
@@ -325,6 +329,8 @@ namespace TECAirlines_WebAPI.Classes
                 {
                     if (reader.HasRows)
                     {
+                        System.Diagnostics.Debug.WriteLine("rows");
+
                         while (reader.Read())
                         {
                             string og_code = Cipher.Decrypt(reader.GetString(0));
@@ -632,5 +638,26 @@ namespace TECAirlines_WebAPI.Classes
             connection.Close();
             return JSONHandler.BuildMsgJSON(0, "No sales were found");
         }
+
+        /// <summary>
+        /// Elimina un cliente de la base.
+        /// </summary>
+        /// <param name="user">El nombre de usuario que se va a eliminar.</param>
+        /// <returns>El resultado de la operación.</returns>
+        public static string DeleteCustomer(string user)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "deletecustomer";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("username", user));
+
+            int result = cmd.ExecuteNonQuery();
+
+            return JSONHandler.BuildMsgJSON(1, "Task Executed");
+        } 
     }
 }

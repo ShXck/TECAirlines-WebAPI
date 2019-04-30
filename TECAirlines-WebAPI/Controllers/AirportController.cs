@@ -152,8 +152,14 @@ namespace TECAirlines_WebAPI.Controllers
             return CheckInsertionResult(query_result);
         }
 
+        [HttpDelete, Route("tecairlines/delete/{user}")]
+        public IHttpActionResult DeleteCustomer([FromUri] string user)
+        {
+            return Ok(CustomerSQLHandler.DeleteCustomer(user));
+        }
 
-        [HttpPost, Route("tecairlines/admin/new-airplane")]
+
+        /*[HttpPost, Route("tecairlines/admin/new-airplane")]
         public IHttpActionResult InsertAirplane([FromBody] string airp_details)
         {
             int query_result = AdminSQLHandler.InsertNewAirplane(JsonConvert.DeserializeObject<Airplane>(airp_details));
@@ -165,7 +171,7 @@ namespace TECAirlines_WebAPI.Controllers
         {
             int query_result = AdminSQLHandler.InsertNewAirport(JsonConvert.DeserializeObject<Airport>(ap_details));
             return CheckInsertionResult(query_result);
-        }
+        }*/
 
         /// <summary>
         /// verifica el estado de una inserción a la base.
