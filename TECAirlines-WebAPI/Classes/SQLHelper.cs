@@ -590,6 +590,12 @@ namespace TECAirlines_WebAPI.Classes
             return result;
         }
 
+        /// <summary>
+        /// Obtiene el precio en millas de un vuelo.
+        /// </summary>
+        /// <param name="flight">El id del vuelo.</param>
+        /// <param name="connect_str">El string de conexión.</param>
+        /// <returns>El precio en millas.</returns>
         public static int GetFlightMilesPrice(string flight, string connect_str)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -617,6 +623,12 @@ namespace TECAirlines_WebAPI.Classes
             return result;
         }
 
+        /// <summary>
+        /// Actualiza las millas de un estudiante.
+        /// </summary>
+        /// <param name="user">El nombre de usuario.</param>
+        /// <param name="amount">La cantidad de millas.</param>
+        /// <param name="connect_str">El string de conexión.</param>
         public static void UpdateMiles(string user, int amount, string connect_str)
         {
             SqlConnection connection = new SqlConnection(connect_str);
@@ -631,6 +643,31 @@ namespace TECAirlines_WebAPI.Classes
             cmd.ExecuteNonQuery();
 
             connection.Close();
+        }
+
+        public static bool FlighExists(string flight, string connect_str)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "select capacity from FLIGHT where flight_id = @flight";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+
+            cmd.Parameters.Add(new SqlParameter("flight", flight));
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    connection.Close();
+                    return true;
+                }
+                else
+                {
+                    connection.Close();
+                    return false;
+                }
+            }
         }
     }
 }

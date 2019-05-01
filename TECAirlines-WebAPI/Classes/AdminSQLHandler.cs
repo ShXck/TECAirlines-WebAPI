@@ -118,32 +118,36 @@ namespace TECAirlines_WebAPI.Classes
         /// <returns>El resultado de la operación.</returns>
         public static int CreateNewFlight(Flight flight)
         {
-            SqlConnection connection = new SqlConnection(connect_str);
-            connection.Open();
-            string req = "insert into FLIGHT VALUES (@depart_ap, @arrival_ap, @capacity, @flight_id, @depart_date, @plane_id, @status, @normal_price, @fc_price, @seats_left, @fc_seats_left, @miles)";
-            SqlCommand cmd = new SqlCommand(req, connection);
+            int result = 2;
+            if (!SQLHelper.FlighExists(flight.flight_id, connect_str))
+            {
+                SqlConnection connection = new SqlConnection(connect_str);
+                connection.Open();
+                string req = "insert into FLIGHT VALUES (@depart_ap, @arrival_ap, @capacity, @flight_id, @depart_date, @plane_id, @status, @normal_price, @fc_price, @seats_left, @fc_seats_left, @miles)";
+                SqlCommand cmd = new SqlCommand(req, connection);
 
-            Tuple<int, int, int> plane_data = SQLHelper.GetPlaneDetails(flight.plane_model, connect_str); // returns <plane_id, capacity, fc_capacity>
+                Tuple<int, int, int> plane_data = SQLHelper.GetPlaneDetails(flight.plane_model, connect_str); // returns <plane_id, capacity, fc_capacity>
 
-            int normal_seats = plane_data.Item2 - plane_data.Item3;
-            Random rd = new Random();
+                int normal_seats = plane_data.Item2 - plane_data.Item3;
+                Random rd = new Random();
 
-            cmd.Parameters.Add(new SqlParameter("depart_ap", flight.depart_ap));
-            cmd.Parameters.Add(new SqlParameter("arrival_ap", flight.arrival_ap));
-            cmd.Parameters.Add(new SqlParameter("capacity", plane_data.Item2));
-            cmd.Parameters.Add(new SqlParameter("flight_id", flight.flight_id));
-            cmd.Parameters.Add(new SqlParameter("depart_date", flight.depart_date));
-            cmd.Parameters.Add(new SqlParameter("plane_id", plane_data.Item1));
-            cmd.Parameters.Add(new SqlParameter("status", "Active"));
-            cmd.Parameters.Add(new SqlParameter("normal_price", flight.normal_price));
-            cmd.Parameters.Add(new SqlParameter("fc_price", flight.fc_price));
-            cmd.Parameters.Add(new SqlParameter("seats_left", normal_seats));
-            cmd.Parameters.Add(new SqlParameter("fc_seats_left", plane_data.Item3));
-            cmd.Parameters.Add(new SqlParameter("miles", rd.Next(1500, 10000)));
+                cmd.Parameters.Add(new SqlParameter("depart_ap", flight.depart_ap));
+                cmd.Parameters.Add(new SqlParameter("arrival_ap", flight.arrival_ap));
+                cmd.Parameters.Add(new SqlParameter("capacity", plane_data.Item2));
+                cmd.Parameters.Add(new SqlParameter("flight_id", flight.flight_id));
+                cmd.Parameters.Add(new SqlParameter("depart_date", flight.depart_date));
+                cmd.Parameters.Add(new SqlParameter("plane_id", plane_data.Item1));
+                cmd.Parameters.Add(new SqlParameter("status", "Active"));
+                cmd.Parameters.Add(new SqlParameter("normal_price", flight.normal_price));
+                cmd.Parameters.Add(new SqlParameter("fc_price", flight.fc_price));
+                cmd.Parameters.Add(new SqlParameter("seats_left", normal_seats));
+                cmd.Parameters.Add(new SqlParameter("fc_seats_left", plane_data.Item3));
+                cmd.Parameters.Add(new SqlParameter("miles", rd.Next(1500, 10000)));
 
-            int result = cmd.ExecuteNonQuery();
+                result = cmd.ExecuteNonQuery();
 
-            connection.Close();
+                connection.Close();
+            }
 
             return result;
         }
