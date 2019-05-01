@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
@@ -387,8 +388,73 @@ namespace TECAirlines_WebAPI.Classes
 
                 connection.Close();
             }
-
             return result;
+        }
+
+        public static string DeleteUni(string uni)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "delete_university";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("university", uni));
+
+            int result = cmd.ExecuteNonQuery();
+
+            System.Diagnostics.Debug.WriteLine(result);
+
+            return JSONHandler.BuildMsgJSON(1, "Task Executed");
+        }
+
+        public static string DeleteFlight(string flight)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "delete_flight";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("flight_id", flight));
+
+            int result = cmd.ExecuteNonQuery();
+
+            return JSONHandler.BuildMsgJSON(1, "Task Executed");
+        }
+
+        public static string DeleteAirport(string ap)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "delete_airport";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("ap_name", ap));
+
+            int result = cmd.ExecuteNonQuery();
+
+            return JSONHandler.BuildMsgJSON(1, "Task Executed");
+        }
+
+        public static string DeletePlane(int plane)
+        {
+            SqlConnection connection = new SqlConnection(connect_str);
+            connection.Open();
+            string req = "delete_airplane";
+
+            SqlCommand cmd = new SqlCommand(req, connection);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(new SqlParameter("plane_id", plane));
+
+            int result = cmd.ExecuteNonQuery();
+
+            return JSONHandler.BuildMsgJSON(1, "Task Executed");
         }
 
         public static int InsertNewAirplane(Airplane ap)

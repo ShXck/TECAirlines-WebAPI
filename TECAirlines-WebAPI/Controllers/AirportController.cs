@@ -152,10 +152,59 @@ namespace TECAirlines_WebAPI.Controllers
             return CheckInsertionResult(query_result);
         }
 
-        [HttpDelete, Route("tecairlines/delete/{user}")]
+        /// <summary>
+        /// Elimina un cliente.
+        /// </summary>
+        /// <param name="user">El nombre de usuario.</param>
+        /// <returns>El resultado de la operación</returns>
+        [HttpDelete, Route("tecairlines/users/delete/{user}")]
         public IHttpActionResult DeleteCustomer([FromUri] string user)
         {
             return Ok(CustomerSQLHandler.DeleteCustomer(user));
+        }
+
+        /// <summary>
+        /// Elimina una universidad
+        /// </summary>
+        /// <param name="uni">El nombre de la Universidad</param>
+        /// <returns>El resultado de la operación</returns>
+        [HttpDelete, Route("tecairlines/universities/delete/{uni}")]
+        public IHttpActionResult DeleteUni([FromUri] string uni)
+        {
+            return Ok(AdminSQLHandler.DeleteUni(uni));
+        }
+
+        /// <summary>
+        /// Elimina un vuelo.
+        /// </summary>
+        /// <param name="flight">El id del vuelo.</param>
+        /// <returns>El resultado de la operación</returns>
+        [HttpDelete, Route("tecairlines/flights/delete/{flight}")]
+        public IHttpActionResult DeleteFlight([FromUri] string flight)
+        {
+            return Ok(AdminSQLHandler.DeleteFlight(flight));
+        }
+
+        /// <summary>
+        /// Elimina un aeropuerto.
+        /// </summary>
+        /// <param name="ap">El nombre del aeropuerto.</param>
+        /// <returns>El resultado de la operación</returns>
+        [HttpDelete, Route("tecairlines/airports/delete/{ap}")]
+        public IHttpActionResult DeleteAirport([FromUri] string ap)
+        {
+            return Ok(AdminSQLHandler.DeleteAirport(ap));
+        }
+
+        /// <summary>
+        /// Elimina un avión.
+        /// </summary>
+        /// <param name="plane">El id del avión.</param>
+        /// <returns>El resultado de la operación</returns>
+        [HttpDelete, Route("tecairlines/airplanes/delete/{plane}")]
+        public IHttpActionResult DeletePlane([FromUri] int plane)
+        {
+            return Ok(AdminSQLHandler.DeletePlane(plane));
         }
 
 
